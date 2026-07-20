@@ -3,14 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Casio | ZZZCulture</title>
+    <title>ZzzCulture</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
+    <section class="hero">
+      <p class="hero-brand">ZzzCulture</p>
+
+      <div class="hero-panel">
+        <img src="/hero.png" alt="ZzzCulture instrument panel" />
+      </div>
+
+      <div class="scroll-hint" aria-hidden="true">
+        <span class="scroll-hint-label">Scroll</span>
+        <span class="scroll-hint-chevron"></span>
+      </div>
+    </section>
+
     <section class="spotlight">
       <div class="spotlight-intro-text-wrapper">
-        <div class="spotlight-intro-text"><p>ZZZ</p></div>
-        <div class="spotlight-intro-text"><p>Culture</p></div>
+        <div class="spotlight-intro-text"><p>Casio</p></div>
+        <div class="spotlight-intro-text"><p>Mods</p></div>
       </div>
 
       <div class="spotlight-bg-img">
@@ -30,14 +49,38 @@
 
     <section class="catalog">
       <div class="catalog-inner">
-        <p class="catalog-label">Quentin Mods</p>
+        <p class="catalog-label">Casio Mods</p>
         <h2 class="catalog-title">Current lineup</h2>
         <ul class="catalog-list"></ul>
       </div>
     </section>
 
-    <section class="outro">
-      <h1>ZZZCulture</h1>
+    <section class="cta">
+      <div class="cta-inner">
+        <p class="cta-label">Order a mod</p>
+        <h2 class="cta-title">Message us</h2>
+        <p class="cta-copy">
+          Send the model you want on Instagram or WhatsApp — we reply directly.
+        </p>
+        <div class="cta-actions">
+          <a
+            class="cta-button"
+            href="https://ig.me/m/skbuildswatches"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Instagram DM
+          </a>
+          <a
+            class="cta-button cta-button-secondary"
+            href="https://wa.me/918129004196"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            WhatsApp
+          </a>
+        </div>
+      </div>
     </section>
     <script type="module" src="/script.js"></script>
   </body>

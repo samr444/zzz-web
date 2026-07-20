@@ -113,7 +113,22 @@ const titlesContainerElement = document.querySelector(
   ".spotlight-titles-container"
 );
 const introTextElements = document.querySelectorAll(".spotlight-intro-text");
+const scrollHint = document.querySelector(".scroll-hint");
 const imageElements = [];
+
+ScrollTrigger.create({
+  trigger: ".hero",
+  start: "top top",
+  end: "bottom top",
+  scrub: true,
+  onUpdate: (self) => {
+    if (!scrollHint) return;
+    gsap.set(scrollHint, {
+      opacity: Math.max(0, 1 - self.progress * 1.8),
+      y: self.progress * 20,
+    });
+  },
+});
 
 spotlightItems.forEach((item, index) => {
   const titleElement = document.createElement("h1");
