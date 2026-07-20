@@ -41,11 +41,17 @@ section {
   overflow: hidden;
 }
 
+section.hero,
 section.catalog,
 section.cta {
   height: auto;
   min-height: 0;
   overflow: visible;
+}
+
+section.hero {
+  min-height: 100svh;
+  overflow: hidden;
 }
 
 .intro,
@@ -64,13 +70,13 @@ section.cta {
 }
 
 .hero {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
   align-items: center;
-  justify-content: center;
-  gap: 1.75rem;
+  justify-items: center;
+  gap: 0;
   background: #000;
-  padding: 2rem 1.25rem 4.5rem;
+  padding: 1.5rem 1.25rem 1.75rem;
 }
 
 .hero-brand {
@@ -80,10 +86,13 @@ section.cta {
   letter-spacing: -0.02em;
   line-height: 1;
   text-align: center;
+  align-self: start;
+  z-index: 2;
 }
 
 .hero-panel {
   width: min(860px, 100%);
+  align-self: center;
 }
 
 .hero-panel img {
@@ -94,14 +103,12 @@ section.cta {
 }
 
 .scroll-hint {
-  position: absolute;
-  left: 50%;
-  bottom: 1.5rem;
-  transform: translateX(-50%);
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.65rem;
+  align-self: end;
   z-index: 4;
   color: rgba(255, 255, 255, 0.72);
   pointer-events: none;
@@ -487,8 +494,20 @@ section.cta {
   }
 
   .hero {
-    gap: 1.25rem;
-    padding: 1.5rem 1rem 4rem;
+    padding: 1.25rem 0.15rem 1.5rem;
+  }
+
+  .hero-brand {
+    padding: 0 1rem;
+  }
+
+  .hero-panel {
+    width: 100%;
+    max-width: none;
+  }
+
+  .hero-panel img {
+    width: 100%;
   }
 
   .catalog {
