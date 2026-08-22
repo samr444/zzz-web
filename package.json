@@ -1,19 +1,29 @@
 {
   "name": "cg-telescope-scroll-animation",
   "version": "1.0.0",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "gsap": "^3.13.0",
-    "lenis": "^1.3.4",
-    "vite": "^7.0.4"
+    "@google/model-viewer": "^3.5.0",
+    "@paper-design/shaders": "^0.0.80",
+    "lucide-react": "^1.33.0",
+    "next": "^16.3.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "^5.7.0"
   }
 }

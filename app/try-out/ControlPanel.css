@@ -1,0 +1,407 @@
+/* Dense, grayscale inspector-panel style (Framer/Figma properties panel) */
+
+.control-panel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    z-index: 20;
+    pointer-events: auto;
+    box-sizing: border-box;
+    background: #101012;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+  }
+  
+  .control-panel-sections {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    transition: max-height 0.25s ease, opacity 0.2s ease;
+  }
+  
+  .control-panel-sections::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .control-panel-sections::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+  }
+  
+  .sheet-handle {
+    display: none;
+  }
+  
+  @media (max-width: 720px) {
+    .control-panel.mobile {
+      top: auto;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      border-radius: 16px 16px 0 0;
+      border-bottom: none;
+      box-shadow: 0 -10px 32px rgba(0, 0, 0, 0.5);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+  
+    .control-panel.mobile .sheet-handle {
+      all: unset;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 0;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+  
+    .sheet-handle-bar {
+      width: 40px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.3);
+    }
+  
+    .control-panel.mobile .control-panel-sections {
+      max-height: 58vh;
+      opacity: 1;
+    }
+  
+    .control-panel.mobile .control-panel-sections.collapsed {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+    }
+  }
+  
+  /* ---------- sections ---------- */
+  
+  .prop-section {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 4px 14px;
+  }
+  
+  .prop-section:last-child {
+    border-bottom: none;
+  }
+  
+  .prop-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 38px;
+  }
+  
+  .prop-section-toggle {
+    all: unset;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  
+  .prop-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #f2f2f3;
+  }
+  
+  .prop-chevron {
+    display: inline-flex;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.45);
+    transition: transform 0.15s ease;
+  }
+  
+  .prop-chevron.open {
+    transform: rotate(180deg);
+  }
+  
+  .prop-section-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 2px 0 12px;
+  }
+  
+  .prop-subhead {
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6c6c72;
+    margin: 10px 0 2px;
+  }
+  
+  .icon-btn {
+    all: unset;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #9a9aa0;
+    cursor: pointer;
+  }
+  
+  .icon-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+  
+  /* ---------- rows ---------- */
+  
+  .prop-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 30px;
+  }
+  
+  .prop-label {
+    flex: 0 0 auto;
+    font-size: 12.5px;
+    color: #97979d;
+    white-space: nowrap;
+  }
+  
+  .prop-control {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  
+  /* ---------- color field ---------- */
+  
+  .color-field {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  
+  .color-swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    flex: none;
+  }
+  
+  .color-field input[type="color"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    padding: 0;
+    border: 0;
+  }
+  
+  .color-hex {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 11.5px;
+    color: #9a9aa0;
+    letter-spacing: 0.01em;
+  }
+  
+  /* ---------- segmented control ---------- */
+  
+  .segmented {
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    background: #1a1a1d;
+    border-radius: 8px;
+  }
+  
+  .segmented-btn {
+    all: unset;
+    box-sizing: border-box;
+    flex: 1;
+    text-align: center;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8b8b90;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  
+  .segmented-btn.active {
+    background: #38383c;
+    color: #fff;
+  }
+  
+  /* ---------- presets ---------- */
+  
+  .preset-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  
+  .preset-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    padding: 0;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  
+  .preset-swatch:hover {
+    transform: translateY(-1px);
+  }
+  
+  .preset-swatch.active {
+    box-shadow: 0 0 0 2px #101012, 0 0 0 3.5px #fff;
+  }
+  
+  /* ---------- sliders ---------- */
+  
+  .slider-track-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .slider-track-row input[type="range"] {
+    flex: 1;
+    min-width: 0;
+    accent-color: #c9c9ce;
+  }
+  
+  .value-chip {
+    flex: none;
+    min-width: 38px;
+    text-align: center;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 11px;
+    color: #d3d3d7;
+    background: #1a1a1d;
+    border-radius: 5px;
+    padding: 3px 6px;
+  }
+  
+  .finish-label {
+    flex: none;
+    font-size: 10.5px;
+    color: #74747a;
+    white-space: nowrap;
+  }
+  
+  /* ---------- buttons ---------- */
+  
+  .upload-row {
+    display: flex;
+    gap: 6px;
+  }
+  
+  .ghost-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: #1a1a1d;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 7px;
+    color: #d8d8dc;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  
+  .ghost-btn:hover {
+    background: #232326;
+  }
+  
+  .ghost-btn.danger {
+    border: none;
+  }
+  
+  .ghost-btn.danger:hover {
+    background: rgba(255, 90, 90, 0.15);
+    color: #ff9d9d;
+  }
+  
+  .prop-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: #c9c9ce;
+    cursor: pointer;
+  }
+  
+  /* ---------- AE-1200 Color Filter accordion rows ---------- */
+  
+  .part-row {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  
+  .part-row:first-child {
+    border-top: none;
+  }
+  
+  .part-row-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 0;
+  }
+  
+  .part-row-toggle {
+    all: unset;
+    box-sizing: border-box;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+    color: #e4e4e6;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  .part-row-body {
+    padding: 2px 0 12px 18px;
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    margin-left: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .lcd-preview {
+    margin-top: 10px;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  
