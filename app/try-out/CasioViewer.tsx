@@ -6,6 +6,7 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import ControlPanel from "./ControlPanel";
 import { applyAllMaterials, darkenHex, type ModelViewerElement } from "./materialControls";
+import { capturePhoto, type PhotoAspectRatio, type PhotoQuality } from "./photoCapture";
 import useIsMobile from "./useIsMobile";
 
 interface WatchConfig {
@@ -51,6 +52,19 @@ interface Faceplate {
 interface Display {
   touched: boolean;
   value: DisplayValue;
+}
+
+interface FaceplateText {
+  touched: boolean;
+  color: string;
+  materialType: MaterialType;
+  glossiness: number;
+}
+
+interface PhotoStudio {
+  enabled: boolean;
+  aspectRatio: PhotoAspectRatio;
+  quality: PhotoQuality;
 }
 
 type ColorFilterPartKey = "dial" | "mute" | "map" | "main";
@@ -109,7 +123,7 @@ const SANS = "'Archivo', sans-serif";
 
 const WATCHES: Record<WatchKey, WatchConfig> = {
   ae1200: {
-    src: "/casiomodels/casio_ae12001.glb",
+    src: "/casiomodels/ae12001.glb",
     alt: "Casio AE-1200WHD digital watch, 3D model",
     title: "Casio AE-1200WHD",
     subtitle: "World Time · compass dial. Drag to rotate, scroll or pinch to zoom.",
@@ -117,7 +131,7 @@ const WATCHES: Record<WatchKey, WatchConfig> = {
     fov: "30deg",
   },
   f91w: {
-    src: "/casiomodels/casio_f91w.glb",
+    src: "/casiomodels/f91w.glb",
     alt: "Casio F-91W digital watch, 3D model",
     title: "Casio F-91W",
     subtitle: "The classic digital watch. Drag to rotate, scroll or pinch to zoom.",
@@ -259,6 +273,13 @@ const DEFAULT_FACEPLATE: Faceplate = {
   repeat: true,
 };
 const DEFAULT_DISPLAY: Display = { touched: false, value: "positive" };
+const DEFAULT_FACEPLATE_TEXT: FaceplateText = {
+  touched: false,
+  color: "#c9c9c9",
+  materialType: "plastic",
+  glossiness: 0.15,
+};
+const DEFAULT_PHOTO_STUDIO: PhotoStudio = { enabled: false, aspectRatio: "square", quality: "good" };
 const DEFAULT_BACKGROUND = "#a7a5a5";
 
 // AE-1200 only — Dial/Mute/Map/Main each get their own independent tint,
@@ -337,7 +358,8 @@ function CasioViewer() {
   // starts from its own base look until the user changes it.
   const [colorFilterByModel, setColorFilterByModel] = useState<Record<WatchKey, ColorFilter>>(() => perModelDefaults(DEFAULT_COLOR_FILTER));
   const [faceplateByModel, setFaceplateByModel] = useState<Record<WatchKey, Faceplate>>(() => perModelDefaults(DEFAULT_FACEPLATE));
-  const [displayByModel, setDisplayByModel] = useState<Record<WatchKey, Display>>(() => perModelDefaults(DEFAULT_DISPLAY));
+  const [faceplateTextByModel, setFaceplateTextByModel] = useState<Record<WatchKey, FaceplateText>>(() => perModelDefaults(DEFAULT_FACEPLATE_TEXT));
+  const [displayByModel] = useState<Record<WatchKey, Display>>(() => perModelDefaults(DEFAULT_DISPLAY));
 
   // AE-1200 only — not per-model since only this watch has these parts.
   const [colorFilterParts, setColorFilterParts] = useState<ColorFilterParts>(DEFAULT_COLOR_FILTER_PARTS);
@@ -345,10 +367,18 @@ function CasioViewer() {
   const [caseMaterial, setCaseMaterial] = useState<CaseMaterial>(DEFAULT_CASE_MATERIAL);
   const [cleanMode, setCleanMode] = useState<CleanMode>(DEFAULT_CLEAN_MODE);
 
+  // Not per-model — a capture preference, not a watch customization.
+  const [photoStudio, setPhotoStudio] = useState<PhotoStudio>(DEFAULT_PHOTO_STUDIO);
+  const [capturingPhoto, setCapturingPhoto] = useState(false);
+
   const watch = WATCHES[currentKey];
   const colorFilter = colorFilterByModel[currentKey];
   const faceplate = faceplateByModel[currentKey];
+  const faceplateText = faceplateTextByModel[currentKey];
   const display = displayByModel[currentKey];
+  // "16:9" is the Instagram Story/Reel portrait shape (9 wide, 16 tall),
+  // matching the width/height convention used by photoCapture.ts.
+  const photoAspectNumber = photoStudio.aspectRatio === "square" ? 1 : 9 / 16;
 
   const updateColorFilter = (patch: Patch<ColorFilter>) =>
     setColorFilterByModel((prev) => ({
@@ -366,10 +396,29 @@ function CasioViewer() {
   const resetFaceplate = () =>
     setFaceplateByModel((prev) => ({ ...prev, [currentKey]: DEFAULT_FACEPLATE }));
 
-  const setDisplay = (value: string) =>
-    setDisplayByModel((prev) => ({ ...prev, [currentKey]: { value, touched: true } }));
-  const resetDisplay = () =>
-    setDisplayByModel((prev) => ({ ...prev, [currentKey]: DEFAULT_DISPLAY }));
+  const updateFaceplateText = (patch: Patch<FaceplateText>) =>
+    setFaceplateTextByModel((prev) => ({
+      ...prev,
+      [currentKey]: { ...prev[currentKey], ...patch, touched: true },
+    }));
+  const resetFaceplateText = () =>
+    setFaceplateTextByModel((prev) => ({ ...prev, [currentKey]: DEFAULT_FACEPLATE_TEXT }));
+
+  const updatePhotoStudio = (patch: Patch<PhotoStudio>) => setPhotoStudio((prev) => ({ ...prev, ...patch }));
+
+  const handleTakePhoto = useCallback(async () => {
+    const viewer = viewerRef.current;
+    if (!viewer || capturingPhoto) return;
+    setCapturingPhoto(true);
+    try {
+      const filenamePrefix = watch.title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      await capturePhoto(viewer, { aspectRatio: photoStudio.aspectRatio, quality: photoStudio.quality }, filenamePrefix, background);
+    } catch (err) {
+      console.warn("[CasioViewer] photo capture failed", err);
+    } finally {
+      setCapturingPhoto(false);
+    }
+  }, [capturingPhoto, photoStudio, watch.title, background]);
 
   const resetBackground = () => setBackground(DEFAULT_BACKGROUND);
 
@@ -424,6 +473,7 @@ function CasioViewer() {
     if (!viewer) return;
     applyAllMaterials(viewer, currentKey, {
       faceplate,
+      faceplateText,
       colorFilter,
       display,
       standVisible: SHOW_STAND,
@@ -434,7 +484,7 @@ function CasioViewer() {
     }).catch((err) =>
       console.warn("[CasioViewer] material apply failed", err)
     );
-  }, [currentKey, faceplate, colorFilter, display, colorFilterParts, bumper, caseMaterial, cleanMode]);
+  }, [currentKey, faceplate, faceplateText, colorFilter, display, colorFilterParts, bumper, caseMaterial, cleanMode]);
 
   useEffect(() => {
     const viewer = viewerRef.current;
@@ -538,6 +588,46 @@ function CasioViewer() {
         />
       </div>
 
+      {photoStudio.enabled && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 4,
+            pointerEvents: "none",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              position: "relative",
+              width: `min(92vw, calc(80vh * ${photoAspectNumber}))`,
+              aspectRatio: `${photoAspectNumber}`,
+              maxHeight: "80vh",
+              boxSizing: "border-box",
+              border: `2px solid ${COLORS.accent}`,
+              boxShadow: "0 0 0 9999px rgba(6,8,6,0.6)",
+            }}
+          >
+            <img
+              src="/logo/logo_lg.png"
+              alt=""
+              style={{
+                position: "absolute",
+                top: "3.5%",
+                left: "3.5%",
+                width: "13%",
+                height: "auto",
+                display: "block",
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       <ControlPanel
         modelKey={currentKey}
         background={background}
@@ -548,14 +638,14 @@ function CasioViewer() {
         onColorFilterTextureUpload={handleColorFilterTextureUpload}
         onColorFilterTextureRemove={handleColorFilterTextureRemove}
         onColorFilterReset={resetColorFilter}
-        display={display.value}
-        onDisplayChange={setDisplay}
-        onDisplayReset={resetDisplay}
         faceplate={faceplate}
         onFaceplateChange={updateFaceplate}
         onFaceplateTextureUpload={handleFaceplateTextureUpload}
         onFaceplateTextureRemove={handleFaceplateTextureRemove}
         onFaceplateReset={resetFaceplate}
+        faceplateText={faceplateText}
+        onFaceplateTextChange={updateFaceplateText}
+        onFaceplateTextReset={resetFaceplateText}
         colorFilterParts={colorFilterParts}
         onColorFilterPartChange={updateColorFilterPart}
         onColorFilterPartTextureUpload={handleColorFilterPartTextureUpload}
@@ -571,6 +661,10 @@ function CasioViewer() {
         cleanMode={cleanMode}
         onCleanModeChange={updateCleanMode}
         onCleanModeReset={resetCleanMode}
+        photoStudio={photoStudio}
+        onPhotoStudioChange={updatePhotoStudio}
+        onTakePhoto={handleTakePhoto}
+        capturingPhoto={capturingPhoto}
       />
 
       <div

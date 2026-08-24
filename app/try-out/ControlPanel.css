@@ -129,6 +129,20 @@
   .prop-chevron.open {
     transform: rotate(180deg);
   }
+
+  .section-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    background: #3b6fe0;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+  }
   
   .prop-section-body {
     display: flex;
@@ -163,6 +177,141 @@
     color: #fff;
   }
   
+  /* ---------- photo studio card ---------- */
+
+  .studio-card {
+    margin: 12px 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #17171a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .studio-card.disabled .radio-option,
+  .studio-card.disabled .studio-card-button {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .studio-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .studio-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #f2f2f3;
+  }
+
+  .studio-card-columns {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 12px;
+  }
+
+  .studio-card-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .studio-card-label {
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6c6c72;
+    margin-bottom: 2px;
+  }
+
+  .radio-option {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: #97979d;
+    cursor: pointer;
+    padding: 2px 0;
+  }
+
+  .radio-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid #5a5a60;
+    background: transparent;
+    flex: none;
+    box-sizing: border-box;
+  }
+
+  .radio-option.selected {
+    color: #fff;
+  }
+
+  .radio-option.selected .radio-dot {
+    border-color: #3ecf4a;
+    background: #3ecf4a;
+    box-shadow: 0 0 0 2px rgba(62, 207, 74, 0.2);
+  }
+
+  .studio-card-button {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    background: #232326;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .studio-card-button:hover {
+    background: #2b2b2f;
+  }
+
+  .switch {
+    all: unset;
+    box-sizing: border-box;
+    width: 40px;
+    height: 24px;
+    border-radius: 12px;
+    background: #3a3a3e;
+    display: inline-flex;
+    align-items: center;
+    padding: 2px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    flex: none;
+  }
+
+  .switch.on {
+    background: #34c759;
+  }
+
+  .switch-knob {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.15s ease;
+  }
+
+  .switch.on .switch-knob {
+    transform: translateX(16px);
+  }
+
   /* ---------- rows ---------- */
   
   .prop-row {
@@ -306,13 +455,6 @@
     background: #1a1a1d;
     border-radius: 5px;
     padding: 3px 6px;
-  }
-  
-  .finish-label {
-    flex: none;
-    font-size: 10.5px;
-    color: #74747a;
-    white-space: nowrap;
   }
   
   /* ---------- buttons ---------- */

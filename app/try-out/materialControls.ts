@@ -12,9 +12,13 @@ const AE1200_COLOR_FILTER_PARTS = {
   main: ["Mat_Color_filter_004"],
 };
 
-// Printed text/graphics layered on top of the base faceplate and case —
-// hiding these is what "Clean Mode" means (a blank case/dial with no labels).
-const AE1200_FACEPLATE_DECOR = [
+// Printed labels on the plastic case/face itself (brand + callouts) — used
+// by both the Faceplate Text control (recolor) and Clean Mode (hide/show).
+// Deliberately excludes the LCD's own segment/symbol overlays (world-map
+// icon, timezone text, top/bottom segment lines: Mat_Face_symbols_*,
+// Mat_Face_timezone, Face_symbols_bottom_lines) — those render the live
+// digital readout, so touching them recolors or blanks out the digits too.
+const AE1200_FACEPLATE_LABELS = [
   "Mat_Elem_face_10yearbattery",
   "Mat_Elem_face_5alarms",
   "Mat_Elem_face_CASIO",
@@ -22,18 +26,27 @@ const AE1200_FACEPLATE_DECOR = [
   "Mat_Elem_face_dial_numbers",
   "Mat_Elem_face_settings",
   "Mat_Elem_face_wr100m",
-  "Mat_Face_symbols_bottom",
-  "Mat_Face_timezone",
-  "Mat_Face_symbols_top_lines",
-  "Mat_Face_symbols_map",
-  "Mat_Face_symbols_arrows",
-  "Face_symbols_bottom_lines",
 ];
 const AE1200_CASE_DECOR = ["Mat_Elem_case_001", "Mat_Elem_case_002"];
 
+// F-91W's printed labels on its base faceplate — the counterpart to
+// AE1200_FACEPLATE_LABELS above. This model has no separate LCD symbol
+// overlays or case decor, so there's nothing else to split out.
+const F91W_FACEPLATE_LABELS = [
+  "Mat_Elem_face_WR",
+  "Mat_Elem_face_start_stop",
+  "Mat_Elem_face_ILLUMINATOR",
+  "Mat_Elem_face_alarm_chrono",
+  "Mat_Elem_face_005",
+  "Mat_Elem_face_004",
+  "Mat_Elem_face_003",
+  "Mat_Elem_face_001",
+  "Elem_face_F91WB",
+];
+
 interface MaterialMapEntry {
   faceplate: string[];
-  faceplateDecor?: string[];
+  faceplateLabels?: string[];
   colorFilterParts?: Record<ColorFilterPartKey, string[]>;
   colorFilter?: string[];
   bumper?: string[];
@@ -47,7 +60,7 @@ interface MaterialMapEntry {
 export const MATERIAL_MAP: Record<"ae1200" | "f91w", MaterialMapEntry> = {
   ae1200: {
     faceplate: ["Mat_Face_main"],
-    faceplateDecor: AE1200_FACEPLATE_DECOR,
+    faceplateLabels: AE1200_FACEPLATE_LABELS,
     colorFilterParts: AE1200_COLOR_FILTER_PARTS,
     bumper: ["Mat_Bumper_casio_ae1200_standard"],
     case: ["Mat_Case"],
@@ -61,6 +74,7 @@ export const MATERIAL_MAP: Record<"ae1200" | "f91w", MaterialMapEntry> = {
   },
   f91w: {
     faceplate: ["Mat_Face"],
+    faceplateLabels: F91W_FACEPLATE_LABELS,
     colorFilter: ["Mat_Color_filter"],
     lcdPositive: ["Mat_LCD_screen_positive"],
     lcdNegative: ["Mat_LCD_screen_negative"],
@@ -103,6 +117,7 @@ export interface ModelViewerElement extends HTMLElement {
   cameraOrbit: string;
   fieldOfView: string;
   createTexture: (url: string) => Promise<ModelViewerTexture | null>;
+  toBlob: (options?: { mimeType?: string; qualityArgument?: number; idealAspect?: boolean }) => Promise<Blob>;
 }
 
 // ---------- control state shapes read by the apply* functions below ----------
@@ -148,6 +163,13 @@ interface BumperState {
 }
 
 interface CaseMaterialState {
+  touched: boolean;
+  color: string;
+  materialType: string;
+  glossiness: number;
+}
+
+interface FaceplateTextState {
   touched: boolean;
   color: string;
   materialType: string;
@@ -388,14 +410,32 @@ export async function applyCaseMaterial(viewer: ModelViewerElement, watchKey: Wa
   }
 }
 
-// AE-1200 only — hides the printed text/graphics on the faceplate and/or
-// case for a blank, unbranded look.
+// The printed text/graphics on the faceplate (brand name, dial numbers,
+// labels) — a separate material group from the base faceplate plastic, so
+// it can carry its own color/finish independent of the faceplate body.
+export async function applyFaceplateText(viewer: ModelViewerElement, watchKey: WatchKey, faceplateText: FaceplateTextState) {
+  if (!faceplateText.touched) return;
+  const names = MATERIAL_MAP[watchKey]?.faceplateLabels || [];
+  for (const mat of findMaterials(viewer, names)) {
+    try {
+      mat.pbrMetallicRoughness.setBaseColorFactor(hexToRgb01(faceplateText.color, 1));
+      mat.pbrMetallicRoughness.setMetallicFactor(faceplateText.materialType === "metallic" ? 1 : 0);
+      mat.pbrMetallicRoughness.setRoughnessFactor(1 - faceplateText.glossiness);
+    } catch (err) {
+      console.warn("[materials] faceplate text update failed", err);
+    }
+  }
+}
+
+// AE-1200 only — hides the printed case labels and/or case decor for a
+// blank, unbranded look. faceplateLabels deliberately excludes the LCD's own
+// segment/symbol overlays, so this never blanks out the live digital readout.
 export async function applyCleanMode(viewer: ModelViewerElement, watchKey: WatchKey, cleanMode: CleanModeState | null | undefined) {
   if (!cleanMode) return;
   const map = MATERIAL_MAP[watchKey];
   const tasks: Promise<void>[] = [];
   if (cleanMode.faceplate.touched) {
-    tasks.push(setMaterialAlpha(viewer, map.faceplateDecor || [], cleanMode.faceplate.value ? 0 : 1));
+    tasks.push(setMaterialAlpha(viewer, map.faceplateLabels || [], cleanMode.faceplate.value ? 0 : 1));
   }
   if (cleanMode.case.touched) {
     tasks.push(setMaterialAlpha(viewer, map.caseDecor || [], cleanMode.case.value ? 0 : 1));
@@ -422,6 +462,7 @@ export async function applyStandVisibility(viewer: ModelViewerElement, watchKey:
 
 export interface ApplyAllMaterialsOptions {
   faceplate: FaceplateState;
+  faceplateText: FaceplateTextState;
   colorFilter: TintedMaterialState;
   display: DisplayState;
   standVisible: boolean;
@@ -434,11 +475,12 @@ export interface ApplyAllMaterialsOptions {
 export async function applyAllMaterials(
   viewer: ModelViewerElement | null | undefined,
   watchKey: WatchKey,
-  { faceplate, colorFilter, display, standVisible, colorFilterParts, bumper, caseMaterial, cleanMode }: ApplyAllMaterialsOptions
+  { faceplate, faceplateText, colorFilter, display, standVisible, colorFilterParts, bumper, caseMaterial, cleanMode }: ApplyAllMaterialsOptions
 ) {
   if (!viewer || !viewer.model) return;
   const tasks: Promise<void>[] = [
     applyFaceplate(viewer, watchKey, faceplate),
+    applyFaceplateText(viewer, watchKey, faceplateText),
     applyDisplayPolarity(viewer, watchKey, display),
     applyStandVisibility(viewer, watchKey, standVisible),
   ];
