@@ -32,8 +32,6 @@ type MaterialState = {
   repeat?: boolean;
 };
 
-type DisplayValue = "positive" | "negative";
-
 type CleanPart = {
   touched: boolean;
   value: boolean;
@@ -42,6 +40,15 @@ type CleanPart = {
 type CleanModeState = {
   faceplate: CleanPart;
   case: CleanPart;
+};
+
+type PhotoAspectRatio = "square" | "16:9";
+type PhotoQuality = "good" | "high";
+
+type PhotoStudioState = {
+  enabled: boolean;
+  aspectRatio: PhotoAspectRatio;
+  quality: PhotoQuality;
 };
 
 type ColorFilterPartKey = "dial" | "mute" | "map" | "main";
@@ -76,11 +83,13 @@ const ResetButton = ({ onClick, label }: { onClick: () => void; label: string })
 
 const Section = ({
   title,
+  icon,
   defaultOpen = true,
   right,
   children,
 }: {
   title: string;
+  icon?: ReactNode;
   defaultOpen?: boolean;
   right?: ReactNode;
   children: ReactNode;
@@ -91,6 +100,7 @@ const Section = ({
       <div className="prop-section-header">
         <button type="button" className="prop-section-toggle" onClick={() => setOpen((o) => !o)}>
           <span className={`prop-chevron ${open ? "open" : ""}`}>⌄</span>
+          {icon}
           <span className="prop-section-title">{title}</span>
         </button>
         {right}
@@ -99,6 +109,46 @@ const Section = ({
     </div>
   );
 };
+
+const SectionIcon = ({ children }: { children: ReactNode }) => (
+  <span className="section-icon">{children}</span>
+);
+
+const Switch = ({ checked, onChange }: { checked: boolean; onChange: (value: boolean) => void }) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    className={`switch ${checked ? "on" : ""}`}
+    onClick={() => onChange(!checked)}
+  >
+    <span className="switch-knob" />
+  </button>
+);
+
+const RadioOption = <T,>({
+  label,
+  value,
+  current,
+  disabled,
+  onSelect,
+}: {
+  label: string;
+  value: T;
+  current: T;
+  disabled?: boolean;
+  onSelect: (value: T) => void;
+}) => (
+  <button
+    type="button"
+    className={`radio-option ${current === value ? "selected" : ""}`}
+    disabled={disabled}
+    onClick={() => onSelect(value)}
+  >
+    <span className="radio-dot" />
+    {label}
+  </button>
+);
 
 const ColorField = ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
   <label className="color-field">
@@ -332,46 +382,6 @@ const PartRow = ({
   </div>
 );
 
-const MaterialFinishBody = ({
-  state,
-  onChange,
-}: {
-  state: MaterialState;
-  onChange: (patch: Patch<MaterialState>) => void;
-}) => (
-  <>
-    <PropRow label="Color">
-      <ColorField value={state.color} onChange={(hex) => onChange({ color: hex })} />
-    </PropRow>
-
-    <PropRow label="Type">
-      <SegmentedToggle<"plastic" | "metallic">
-        options={[
-          { label: "Plastic", value: "plastic" },
-          { label: "Metallic", value: "metallic" },
-        ]}
-        value={state.materialType}
-        onChange={(v) => onChange({ materialType: v })}
-      />
-    </PropRow>
-
-    <PropRow label="Finish">
-      <div className="slider-track-row">
-        <span className="finish-label">Matte</span>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.01"
-          value={state.glossiness}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => onChange({ glossiness: parseFloat(e.target.value) })}
-        />
-        <span className="finish-label">Glossy</span>
-      </div>
-    </PropRow>
-  </>
-);
-
 
 type ControlPanelProps = {
   modelKey: "ae1200" | "f91w";
@@ -383,9 +393,6 @@ type ControlPanelProps = {
   onColorFilterTextureUpload: (file: File) => void;
   onColorFilterTextureRemove: () => void;
   onColorFilterReset: () => void;
-  display: DisplayValue;
-  onDisplayChange: (value: DisplayValue) => void;
-  onDisplayReset: () => void;
   faceplate: MaterialState & {
     textureUrl: string | null;
     scaleX: number;
@@ -398,6 +405,9 @@ type ControlPanelProps = {
   onFaceplateTextureUpload: (file: File) => void;
   onFaceplateTextureRemove: () => void;
   onFaceplateReset: () => void;
+  faceplateText: MaterialState;
+  onFaceplateTextChange: (patch: Patch<MaterialState>) => void;
+  onFaceplateTextReset: () => void;
   colorFilterParts: Record<ColorFilterPartKey, ColorFilterState>;
   onColorFilterPartChange: (
     key: ColorFilterPartKey,
@@ -419,6 +429,10 @@ type ControlPanelProps = {
   cleanMode: CleanModeState;
   onCleanModeChange: (part: keyof CleanModeState, value: boolean) => void;
   onCleanModeReset: () => void;
+  photoStudio: PhotoStudioState;
+  onPhotoStudioChange: (patch: Patch<PhotoStudioState>) => void;
+  onTakePhoto: () => void;
+  capturingPhoto: boolean;
 };
 
 const ControlPanel = ({
@@ -431,14 +445,14 @@ const ControlPanel = ({
   onColorFilterTextureUpload,
   onColorFilterTextureRemove,
   onColorFilterReset,
-  display,
-  onDisplayChange,
-  onDisplayReset,
   faceplate,
   onFaceplateChange,
   onFaceplateTextureUpload,
   onFaceplateTextureRemove,
   onFaceplateReset,
+  faceplateText,
+  onFaceplateTextChange,
+  onFaceplateTextReset,
   colorFilterParts,
   onColorFilterPartChange,
   onColorFilterPartTextureUpload,
@@ -454,6 +468,10 @@ const ControlPanel = ({
   cleanMode,
   onCleanModeChange,
   onCleanModeReset,
+  photoStudio,
+  onPhotoStudioChange,
+  onTakePhoto,
+  capturingPhoto,
 }: ControlPanelProps) => {
   const isMobile = useIsMobile();
   const [expanded, setExpanded] = useState(false);
@@ -470,6 +488,59 @@ const ControlPanel = ({
         </button>
       )}
       <div className={`control-panel-sections ${isMobile && !expanded ? "collapsed" : ""}`}>
+        <div className={`studio-card ${photoStudio.enabled ? "" : "disabled"}`}>
+          <div className="studio-card-header">
+            <span className="studio-card-title">Take A Picture</span>
+            <Switch checked={photoStudio.enabled} onChange={(v) => onPhotoStudioChange({ enabled: v })} />
+          </div>
+          <div className="studio-card-columns">
+            <div className="studio-card-column">
+              <div className="studio-card-label">Aspect Ratio</div>
+              <RadioOption<PhotoAspectRatio>
+                label="Square"
+                value="square"
+                current={photoStudio.aspectRatio}
+                disabled={!photoStudio.enabled}
+                onSelect={(v) => onPhotoStudioChange({ aspectRatio: v })}
+              />
+              <RadioOption<PhotoAspectRatio>
+                label="16:9"
+                value="16:9"
+                current={photoStudio.aspectRatio}
+                disabled={!photoStudio.enabled}
+                onSelect={(v) => onPhotoStudioChange({ aspectRatio: v })}
+              />
+            </div>
+            <div className="studio-card-column">
+              <div className="studio-card-label">Quality</div>
+              <RadioOption<PhotoQuality>
+                label="Good"
+                value="good"
+                current={photoStudio.quality}
+                disabled={!photoStudio.enabled}
+                onSelect={(v) => onPhotoStudioChange({ quality: v })}
+              />
+              <RadioOption<PhotoQuality>
+                label="High"
+                value="high"
+                current={photoStudio.quality}
+                disabled={!photoStudio.enabled}
+                onSelect={(v) => onPhotoStudioChange({ quality: v })}
+              />
+            </div>
+          </div>
+          <button
+            type="button"
+            className="studio-card-button"
+            disabled={!photoStudio.enabled || capturingPhoto}
+            onClick={onTakePhoto}
+            aria-label={capturingPhoto ? "Capturing photo" : "Take a photo"}
+            title={capturingPhoto ? "Capturing…" : "Take a photo"}
+          >
+            📷
+          </button>
+        </div>
+
         <Section title="Background" right={<ResetButton onClick={onBackgroundReset} label="Background" />}>
           <PropRow label="Color">
             <ColorField value={background} onChange={onBackgroundChange} />
@@ -562,46 +633,9 @@ const ControlPanel = ({
           </Section>
         )}
 
-        <Section title="Display" right={<ResetButton onClick={onDisplayReset} label="Display" />}>
-          <PropRow label="Polarity">
-            <SegmentedToggle
-              options={[
-                { label: "Positive", value: "positive" },
-                { label: "Negative", value: "negative" },
-              ]}
-              value={display}
-              onChange={onDisplayChange}
-            />
-          </PropRow>
-        </Section>
-
         <Section title="Faceplate" right={<ResetButton onClick={onFaceplateReset} label="Faceplate" />}>
           <PropRow label="Color">
             <ColorField value={faceplate.color} onChange={(hex) => onFaceplateChange({ color: hex })} />
-          </PropRow>
-          <PropRow label="Type">
-            <SegmentedToggle<"plastic" | "metallic">
-              options={[
-                { label: "Plastic", value: "plastic" },
-                { label: "Metallic", value: "metallic" },
-              ]}
-              value={faceplate.materialType}
-              onChange={(v) => onFaceplateChange({ materialType: v })}
-            />
-          </PropRow>
-          <PropRow label="Finish">
-            <div className="slider-track-row">
-              <span className="finish-label">Matte</span>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={faceplate.glossiness}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => onFaceplateChange({ glossiness: parseFloat(e.target.value) })}
-              />
-              <span className="finish-label">Glossy</span>
-            </div>
           </PropRow>
           <PropRow label="Texture">
             <UploadRemoveRow
@@ -638,6 +672,16 @@ const ControlPanel = ({
           )}
         </Section>
 
+        <Section
+          title="Faceplate Text"
+          icon={<SectionIcon>Aa</SectionIcon>}
+          right={<ResetButton onClick={onFaceplateTextReset} label="Faceplate Text" />}
+        >
+          <PropRow label="Color">
+            <ColorField value={faceplateText.color} onChange={(hex) => onFaceplateTextChange({ color: hex })} />
+          </PropRow>
+        </Section>
+
         {isAe1200 && (
           <>
             {/* Bumper controls hidden for now — not needed yet. State/handlers
@@ -645,7 +689,9 @@ const ControlPanel = ({
                 materialControls' `!bumper.touched` guard keeps it a no-op. */}
 
             <Section title="Case" right={<ResetButton onClick={onCaseMaterialReset} label="Case" />}>
-              <MaterialFinishBody state={caseMaterial} onChange={onCaseMaterialChange} />
+              <PropRow label="Color">
+                <ColorField value={caseMaterial.color} onChange={(hex) => onCaseMaterialChange({ color: hex })} />
+              </PropRow>
             </Section>
 
             <Section title="Clean Mode" right={<ResetButton onClick={onCleanModeReset} label="Clean Mode" />}>
