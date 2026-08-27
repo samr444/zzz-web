@@ -81,17 +81,21 @@ const ResetButton = ({ onClick, label }: { onClick: () => void; label: string })
   </button>
 );
 
+const ComingSoonBadge = () => <span className="coming-soon-badge">Coming Soon</span>;
+
 const Section = ({
   title,
   icon,
   defaultOpen = true,
   right,
+  disabled = false,
   children,
 }: {
   title: string;
   icon?: ReactNode;
   defaultOpen?: boolean;
   right?: ReactNode;
+  disabled?: boolean;
   children: ReactNode;
 }) => {
   const [open, setOpen] = useState(defaultOpen);
@@ -103,9 +107,13 @@ const Section = ({
           {icon}
           <span className="prop-section-title">{title}</span>
         </button>
-        {right}
+        {disabled ? <ComingSoonBadge /> : right}
       </div>
-      {open && <div className="prop-section-body">{children}</div>}
+      {open && (
+        <div className={`prop-section-body${disabled ? " prop-section-body-disabled" : ""}`}>
+          {children}
+        </div>
+      )}
     </div>
   );
 };
@@ -633,7 +641,7 @@ const ControlPanel = ({
           </Section>
         )}
 
-        <Section title="Faceplate" right={<ResetButton onClick={onFaceplateReset} label="Faceplate" />}>
+        <Section title="Faceplate" disabled={isAe1200} right={<ResetButton onClick={onFaceplateReset} label="Faceplate" />}>
           <PropRow label="Color">
             <ColorField value={faceplate.color} onChange={(hex) => onFaceplateChange({ color: hex })} />
           </PropRow>
@@ -675,6 +683,7 @@ const ControlPanel = ({
         <Section
           title="Faceplate Text"
           icon={<SectionIcon>Aa</SectionIcon>}
+          disabled={isAe1200}
           right={<ResetButton onClick={onFaceplateTextReset} label="Faceplate Text" />}
         >
           <PropRow label="Color">
@@ -688,7 +697,7 @@ const ControlPanel = ({
                 stay wired in props; the bumper simply stays untouched, so
                 materialControls' `!bumper.touched` guard keeps it a no-op. */}
 
-            <Section title="Case" right={<ResetButton onClick={onCaseMaterialReset} label="Case" />}>
+            <Section title="Case" disabled right={<ResetButton onClick={onCaseMaterialReset} label="Case" />}>
               <PropRow label="Color">
                 <ColorField value={caseMaterial.color} onChange={(hex) => onCaseMaterialChange({ color: hex })} />
               </PropRow>
