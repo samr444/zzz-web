@@ -1,19 +1,11 @@
 import Link from "next/link";
 import { BuildCustomWatchButton } from "./components/BuildCustomWatchButton";
 import { CatalogCard } from "./components/CatalogCard";
-import { catalogItems, formatInr, type CatalogItem } from "./data";
-
-const INSTAGRAM_DM_URL = "https://ig.me/m/zzzculture.builds";
-const WHATSAPP_NUMBER = "918129004196";
-
-// Instagram's DM deep link has no prefill param (unlike WhatsApp's), so it
-// just opens the thread — the WhatsApp link carries the watch details.
-function whatsAppOrderUrl(item: CatalogItem) {
-  const text = `Hi! I'd like to order the ${item.name} — ${item.tag} (${formatInr(item.price)}).`;
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
-}
+import { getLineup, INSTAGRAM_URL, WHATSAPP_NUMBER } from "./data";
 
 export default function Home() {
+  const lineup = getLineup();
+
   return (
     <>
       <header className="nav">
@@ -54,14 +46,8 @@ export default function Home() {
           <p className="catalog-label">Casio Mods</p>
           <h2 className="catalog-title">Current lineup</h2>
           <div className="catalog-grid">
-            {catalogItems.map((item, index) => (
-              <CatalogCard
-                key={`${item.name}-${item.tag}-${index}`}
-                item={item}
-                price={formatInr(item.price)}
-                whatsAppHref={whatsAppOrderUrl(item)}
-                instagramHref={INSTAGRAM_DM_URL}
-              />
+            {lineup.map((build) => (
+              <CatalogCard key={build.slug} build={build} />
             ))}
           </div>
         </div>
@@ -77,7 +63,7 @@ export default function Home() {
           <div className="cta-actions">
             <a
               className="btn btn-primary"
-              href={INSTAGRAM_DM_URL}
+              href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -102,7 +88,7 @@ export default function Home() {
             <p className="footer-copy">© 2026 ZzzCulture. Where craft meets culture.</p>
           </div>
           <div className="footer-links">
-            <a href={INSTAGRAM_DM_URL} target="_blank" rel="noopener noreferrer">
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
               Instagram
             </a>
             <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer">

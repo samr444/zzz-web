@@ -1,21 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import type { CatalogItem } from "../data";
+import type { ResolvedBuild } from "../data";
 
 interface CatalogCardProps {
-  item: CatalogItem;
-  price: string;
-  whatsAppHref: string;
-  instagramHref: string;
+  build: ResolvedBuild;
 }
 
 // The order-via-chat overlay shows on hover for pointer devices, but touch
 // devices have no hover — there it only opens once the card is tapped, and
 // tapping again (or tapping elsewhere) closes it.
-export function CatalogCard({ item, price, whatsAppHref, instagramHref }: CatalogCardProps) {
+export function CatalogCard({ build }: CatalogCardProps) {
   const [open, setOpen] = useState(false);
-  const soldOut = Boolean(item.soldOut);
+  const soldOut = build.status === "sold-out";
+  const madeToOrder = build.status === "made-to-order";
 
   return (
     <div className="catalog-card">
@@ -35,14 +33,14 @@ export function CatalogCard({ item, price, whatsAppHref, instagramHref }: Catalo
               }
         }
       >
-        <img src={item.img} alt={`${item.name} — ${item.tag}`} />
+        <img src={build.images[0]} alt={`${build.title} — ${build.subtitle}`} />
         {soldOut ? (
           <span className="catalog-card-sold-out-badge">Sold Out</span>
         ) : (
           <div className={`catalog-card-overlay${open ? " is-open" : ""}`}>
             <a
               className="catalog-card-order-btn"
-              href={whatsAppHref}
+              href={build.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
@@ -51,7 +49,7 @@ export function CatalogCard({ item, price, whatsAppHref, instagramHref }: Catalo
             </a>
             <a
               className="catalog-card-order-btn"
-              href={instagramHref}
+              href={build.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
@@ -63,10 +61,13 @@ export function CatalogCard({ item, price, whatsAppHref, instagramHref }: Catalo
       </div>
       <div className="catalog-card-meta">
         <div>
-          <p className="catalog-card-name">{item.name}</p>
-          <span className="catalog-card-tag">{item.tag}</span>
+          <p className="catalog-card-name">{build.title}</p>
+          <span className="catalog-card-tag">
+            {build.subtitle}
+            {madeToOrder ? " · Made to Order" : ""}
+          </span>
         </div>
-        <p className="catalog-card-price">{price}</p>
+        <p className="catalog-card-price">{build.formattedPrice}</p>
       </div>
     </div>
   );
