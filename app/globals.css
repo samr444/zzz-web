@@ -223,6 +223,33 @@ a {
   object-fit: contain;
 }
 
+.catalog-card-image.is-sold-out {
+  cursor: default;
+}
+
+.catalog-card-image.is-sold-out img {
+  filter: grayscale(0.15);
+  opacity: 0.55;
+}
+
+.catalog-card-sold-out-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  padding: 0.5rem 1.4rem;
+  border: 2px solid var(--on-surface);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--on-surface);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 /* Order-via-chat overlay: revealed on hover/focus for pointer devices.
    Touch devices have no hover, so there it only opens via the .is-open
    class, toggled by tapping the card (see CatalogCard.tsx). */

@@ -15,42 +15,51 @@ interface CatalogCardProps {
 // tapping again (or tapping elsewhere) closes it.
 export function CatalogCard({ item, price, whatsAppHref, instagramHref }: CatalogCardProps) {
   const [open, setOpen] = useState(false);
+  const soldOut = Boolean(item.soldOut);
 
   return (
     <div className="catalog-card">
       <div
-        className="catalog-card-image"
-        role="button"
-        tabIndex={0}
-        onClick={() => setOpen((prev) => !prev)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setOpen((prev) => !prev);
-          }
-        }}
+        className={`catalog-card-image${soldOut ? " is-sold-out" : ""}`}
+        role={soldOut ? undefined : "button"}
+        tabIndex={soldOut ? undefined : 0}
+        onClick={soldOut ? undefined : () => setOpen((prev) => !prev)}
+        onKeyDown={
+          soldOut
+            ? undefined
+            : (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setOpen((prev) => !prev);
+                }
+              }
+        }
       >
         <img src={item.img} alt={`${item.name} — ${item.tag}`} />
-        <div className={`catalog-card-overlay${open ? " is-open" : ""}`}>
-          <a
-            className="catalog-card-order-btn"
-            href={whatsAppHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-          >
-            WhatsApp
-          </a>
-          <a
-            className="catalog-card-order-btn"
-            href={instagramHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-          >
-            Instagram
-          </a>
-        </div>
+        {soldOut ? (
+          <span className="catalog-card-sold-out-badge">Sold Out</span>
+        ) : (
+          <div className={`catalog-card-overlay${open ? " is-open" : ""}`}>
+            <a
+              className="catalog-card-order-btn"
+              href={whatsAppHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              WhatsApp
+            </a>
+            <a
+              className="catalog-card-order-btn"
+              href={instagramHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Instagram
+            </a>
+          </div>
+        )}
       </div>
       <div className="catalog-card-meta">
         <div>
