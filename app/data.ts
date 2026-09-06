@@ -206,7 +206,7 @@ export const LINEUP: readonly Build[] = [
     slug: "custom-royale",
     baseWatchId: "ae1200whd-1av",
     mods: [{ kind: "custom-royale", label: "Custom Royale Build" }],
-    images: ["/lineups/custom_royale.png"],
+    images: ["/lineups/custom_royale.png", "/lineups/custom_royale_case_options.png"],
     status: "made-to-order",
     order: 0,
   },

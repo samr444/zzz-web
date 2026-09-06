@@ -52,8 +52,12 @@
       border-bottom: none;
       box-shadow: 0 -10px 32px rgba(0, 0, 0, 0.5);
       padding-bottom: env(safe-area-inset-bottom, 0px);
+      /* frosted glass — the 3D viewer shows through */
+      background: rgba(12, 12, 14, 0.68);
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
     }
-  
+
     .control-panel.mobile .sheet-handle {
       all: unset;
       display: flex;
@@ -67,23 +71,77 @@
       cursor: pointer;
       box-sizing: border-box;
     }
-  
+
     .sheet-handle-bar {
       width: 40px;
       height: 4px;
       border-radius: 2px;
       background: rgba(255, 255, 255, 0.3);
     }
-  
+
+    /* Horizontal strip — each card peeks the next one on the right */
     .control-panel.mobile .control-panel-sections {
-      max-height: 58vh;
+      flex-direction: row;
+      align-items: flex-start;
+      height: auto;
+      max-height: 45vh;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-padding-left: 14px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
       opacity: 1;
+      gap: 10px;
+      padding: 10px 14px;
+      box-sizing: border-box;
     }
-  
+
+    .control-panel.mobile .control-panel-sections::-webkit-scrollbar {
+      display: none;
+    }
+
     .control-panel.mobile .control-panel-sections.collapsed {
       max-height: 0;
       opacity: 0;
       overflow: hidden;
+      padding: 0;
+    }
+
+    /* Each card: just wide enough that ~36px of the next card peeks */
+    .control-panel.mobile .prop-section {
+      flex: 0 0 calc(100% - 50px);
+      min-width: 0;
+      box-sizing: border-box;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      overflow-y: auto;
+      scroll-snap-align: start;
+      scrollbar-width: none;
+    }
+
+    .control-panel.mobile .prop-section::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Studio card — same card shape */
+    .control-panel.mobile .studio-card {
+      flex: 0 0 calc(100% - 50px);
+      min-width: 0;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      background: rgba(255, 255, 255, 0.05);
+      overflow-y: auto;
+      scroll-snap-align: start;
+      scrollbar-width: none;
+    }
+
+    .control-panel.mobile .studio-card::-webkit-scrollbar {
+      display: none;
     }
   }
   

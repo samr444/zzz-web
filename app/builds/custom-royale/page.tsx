@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { formatINR, INSTAGRAM_URL, WHATSAPP_NUMBER } from "../../data";
+import BuildGallery from "../../components/BuildGallery";
 
 /* ------------------------------------------------------------------ */
 /* Option data                                                          */
@@ -86,22 +87,14 @@ export default function CustomRoyalePage() {
 
           <div className="build-layout">
             {/* ── Gallery ── */}
-            <div className="build-gallery">
-              <div className="build-main-image-wrap">
-                <img
-                  className="build-main-image"
-                  src="/lineups/custom_royale.png"
-                  alt="Custom Royale Build"
-                />
-              </div>
-              <div className="royale-case-options-wrap">
-                <img
-                  src="/lineups/custom_royale_case_options.png"
-                  alt="Case Color Options"
-                  className="royale-case-options-img"
-                />
-              </div>
-            </div>
+            <BuildGallery
+              images={[
+                "/lineups/custom_royale.png",
+                "/lineups/custom_royale_case_options.png",
+              ]}
+              title="Custom Royale Build"
+              soldOut={false}
+            />
 
             {/* ── Info ── */}
             <div className="build-info">

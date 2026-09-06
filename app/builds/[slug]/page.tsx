@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getBuild, getLineup, formatINR, INSTAGRAM_URL, WHATSAPP_NUMBER } from "../../data";
+import BuildGallery from "../../components/BuildGallery";
 
 export async function generateStaticParams() {
   return getLineup().map((b) => ({ slug: b.slug }));
@@ -57,28 +58,11 @@ export default async function BuildPage({
 
           <div className="build-layout">
             {/* ── Left: image gallery ── */}
-            <div className="build-gallery">
-              <div className={`build-main-image-wrap${soldOut ? " is-sold-out" : ""}`}>
-                <img
-                  className="build-main-image"
-                  src={build.images[0]}
-                  alt={`${build.title} — ${build.subtitle}`}
-                />
-                {soldOut && (
-                  <span className="build-sold-out-badge">Sold Out</span>
-                )}
-              </div>
-              {/* Thumbnail strip — shows all images; if only one, still renders for padding */}
-              {build.images.length > 1 && (
-                <div className="build-thumbs">
-                  {build.images.map((src, i) => (
-                    <div key={i} className={`build-thumb${i === 0 ? " is-active" : ""}`}>
-                      <img src={src} alt={`${build.title} view ${i + 1}`} />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <BuildGallery
+              images={build.images}
+              title={build.title}
+              soldOut={soldOut}
+            />
 
             {/* ── Right: product info ── */}
             <div className="build-info">
