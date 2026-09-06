@@ -18,7 +18,7 @@ interface WatchConfig {
   fov: string;
 }
 
-type WatchKey = "ae1200" | "f91w";
+type WatchKey = "ae1200" | "f91w" | "a168";
 type MaterialType = "plastic" | "metallic";
 type DisplayValue = "positive" | "negative";
 
@@ -135,6 +135,14 @@ const WATCHES: Record<WatchKey, WatchConfig> = {
     alt: "Casio F-91W digital watch, 3D model",
     title: "Casio F-91W",
     subtitle: "The classic digital watch. Drag to rotate, scroll or pinch to zoom.",
+    orbit: "-32deg 74deg 2.4m",
+    fov: "30deg",
+  },
+  a168: {
+    src: "/casiomodels/casio_a168.glb",
+    alt: "Casio A168WA stainless steel digital watch, 3D model",
+    title: "Casio A168WA",
+    subtitle: "Stainless steel retro classic. Drag to rotate, scroll or pinch to zoom.",
     orbit: "-32deg 74deg 2.4m",
     fov: "30deg",
   },
@@ -806,6 +814,15 @@ function CasioViewer() {
           hoverStyle={ctrlHover}
         >
           F-91W
+        </HoverButton>
+        <HoverButton
+          active={currentKey === "a168"}
+          onClick={() => loadWatch("a168")}
+          base={sideModelBtnBase}
+          activeStyle={ctrlActive}
+          hoverStyle={ctrlHover}
+        >
+          A168WA
         </HoverButton>
         <div
           style={

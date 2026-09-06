@@ -57,7 +57,30 @@ interface MaterialMapEntry {
   stand: string[];
 }
 
-export const MATERIAL_MAP: Record<"ae1200" | "f91w", MaterialMapEntry> = {
+export const MATERIAL_MAP: Record<"ae1200" | "f91w" | "a168", MaterialMapEntry> = {
+  // Casio A168WA — material names confirmed from the GLB.
+  // Color filter targets Mat_Glass (the semi-transparent overlay on the LCD).
+  // Faceplate text labels are listed for future use; the section is hidden
+  // in the control panel for this model (only Background + Color Filter shown).
+  a168: {
+    faceplate: ["Mat_Face"],
+    faceplateLabels: [
+      "Mat_Elem_face_001",
+      "Mat_Elem_face_start_stop",
+      "Mat_Elem_face_003",
+      "Mat_Elem_face_water_resist",
+      "Mat_Elem_face_WR",
+      "Mat_Elem_face_004",
+      "Mat_Elem_face_alarm_chrono",
+      "Mat_Elem_face_005",
+      "Mat_Elem_face_CASIO",
+      "Mat_Elem_face_ILLUMINATOR",
+    ],
+    colorFilter: ["Mat_Glass"],
+    lcdPositive: ["Mat_LCD_screen_positive"],
+    lcdNegative: ["Mat_LCD_screen_negative"],
+    stand: STAND_MATERIALS,
+  },
   ae1200: {
     faceplate: ["Mat_Face_main"],
     faceplateLabels: AE1200_FACEPLATE_LABELS,
