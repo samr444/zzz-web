@@ -392,7 +392,7 @@ const PartRow = ({
 
 
 type ControlPanelProps = {
-  modelKey: "ae1200" | "f91w";
+  modelKey: "ae1200" | "f91w" | "a168";
   background: string;
   onBackgroundChange: (value: string) => void;
   onBackgroundReset: () => void;
@@ -485,6 +485,7 @@ const ControlPanel = ({
   const [expanded, setExpanded] = useState(false);
   const [openPart, setOpenPart] = useState<ColorFilterPartKey | null>(null);
   const isAe1200 = modelKey === "ae1200";
+  const isA168   = modelKey === "a168";
   const togglePart = (key: ColorFilterPartKey) => setOpenPart((prev) => (prev === key ? null : key));
 
   return (
@@ -641,7 +642,7 @@ const ControlPanel = ({
           </Section>
         )}
 
-        <Section title="Faceplate" disabled={isAe1200} right={<ResetButton onClick={onFaceplateReset} label="Faceplate" />}>
+        {!isA168 && <Section title="Faceplate" disabled={isAe1200} right={<ResetButton onClick={onFaceplateReset} label="Faceplate" />}>
           <PropRow label="Color">
             <ColorField value={faceplate.color} onChange={(hex) => onFaceplateChange({ color: hex })} />
           </PropRow>
@@ -678,18 +679,20 @@ const ControlPanel = ({
               </PropRow>
             </>
           )}
-        </Section>
+        </Section>}
 
-        <Section
-          title="Faceplate Text"
-          icon={<SectionIcon>Aa</SectionIcon>}
-          disabled={isAe1200}
-          right={<ResetButton onClick={onFaceplateTextReset} label="Faceplate Text" />}
-        >
-          <PropRow label="Color">
-            <ColorField value={faceplateText.color} onChange={(hex) => onFaceplateTextChange({ color: hex })} />
-          </PropRow>
-        </Section>
+        {!isA168 && (
+          <Section
+            title="Faceplate Text"
+            icon={<SectionIcon>Aa</SectionIcon>}
+            disabled={isAe1200}
+            right={<ResetButton onClick={onFaceplateTextReset} label="Faceplate Text" />}
+          >
+            <PropRow label="Color">
+              <ColorField value={faceplateText.color} onChange={(hex) => onFaceplateTextChange({ color: hex })} />
+            </PropRow>
+          </Section>
+        )}
 
         {isAe1200 && (
           <>
