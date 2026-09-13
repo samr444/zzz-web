@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -33,7 +34,10 @@ export default function RootLayout({
           like data-tsenta-overlay-* / cz-shortcut-listen onto <html>/<body>
           before React hydrates. suppressHydrationWarning on these two tags
           is the standard fix — see https://react.dev/link/hydration-mismatch */}
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }

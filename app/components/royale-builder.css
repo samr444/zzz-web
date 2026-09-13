@@ -1,0 +1,1177 @@
+/* ------------------------------------------------------------------ *
+ * ZZZ Culture Royale builder
+ * Design system ported from the original storefront stylesheet.
+ * ------------------------------------------------------------------ */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+}
+
+.zzz-royale-builder {
+  --ink: #1c1a20;
+  --muted: #807b8b;
+  --line: #e8e4ee;
+  /* The patch: royal blue, cream keyline, near-black outline. */
+  --brand: #1b3ec4;
+  --brand-dark: #16309b;
+  --brand-pale: #eef1fd;
+  --cream: #f1ebdc;
+  --mat-blue: #3f5fd6;
+  --selection: #1b3ec4;
+  --selection-pale: #eef1fd;
+  --selection-hover: #8fa2e8;
+  --selection-focus: #3f5fd6;
+  --surface: #f5f4f7;
+  --radius: 12px;
+  color-scheme: light;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Arial,
+    sans-serif;
+  color: var(--ink);
+  font-synthesis: none;
+  display: block;
+  isolation: isolate;
+  margin: 0;
+  background: #fff;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-align: left;
+}
+
+.zzz-royale-builder * {
+  box-sizing: border-box;
+}
+
+/*
+ * On narrow layouts the preview is sticky, so anything the browser may scroll
+ * into view — a focused control, an anchor, a `scrollIntoView` — has to clear
+ * it or it lands underneath and stops being tappable. `--sticky-preview` is
+ * published by the builder.
+ */
+.zzz-royale-builder
+  :is(section, fieldset, button, label, input, .window-option) {
+  scroll-margin-bottom: 24px;
+}
+.zzz-royale-builder button,
+.zzz-royale-builder a,
+.zzz-royale-builder input {
+  touch-action: manipulation;
+}
+.zzz-royale-builder button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+.zzz-royale-builder button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.zzz-royale-builder button:focus-visible,
+.zzz-royale-builder a:focus-visible,
+.zzz-royale-builder [tabindex]:focus-visible {
+  outline: 3px solid var(--selection-focus);
+  outline-offset: 4px;
+}
+.zzz-royale-builder a {
+  color: inherit;
+  text-decoration: none;
+}
+.zzz-royale-builder svg {
+  display: block;
+}
+.zzz-royale-builder button > svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.zzz-royale-builder h1,
+.zzz-royale-builder h2,
+.zzz-royale-builder h3,
+.zzz-royale-builder button,
+.zzz-royale-builder input {
+  font-family: inherit;
+} /* ---------------------------------------------------------- layout */
+
+.zzz-royale-builder .builder {
+  max-width: 1344px;
+  margin: 36px auto 0;
+  display: grid;
+  grid-template-columns: minmax(0, 0.91fr) minmax(0, 1.09fr);
+  gap: 64px;
+  padding: 0 24px 56px;
+}
+.zzz-royale-builder .preview-sticky {
+  position: sticky;
+  top: 26px;
+}
+
+/* ---------------------------------------------------------- preview */
+
+.zzz-royale-builder .preview-card {
+  background: var(--surface);
+  padding: 18px;
+  border-radius: 24px;
+}
+.zzz-royale-builder .preview-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1px 5px 14px;
+  gap: 12px;
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+.zzz-royale-builder .eyebrow {
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.3px;
+  line-height: 1.4;
+  margin: 0;
+  color: #68616f;
+}
+.zzz-royale-builder .made-to-order {
+  color: #6d6877;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+.zzz-royale-builder .made-to-order svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  fill: none;
+  stroke: var(--selection);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.zzz-royale-builder .watch-stage {
+  position: relative;
+  background: #fff;
+  border-radius: 15px;
+  overflow: hidden;
+  aspect-ratio: 1033 / 1470;
+  max-height: calc(100vh - 118px);
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.zzz-royale-builder .watch-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.zzz-royale-builder .watch-hotspots path {
+  fill: transparent;
+  cursor: pointer;
+  pointer-events: all;
+  outline: none;
+}
+.zzz-royale-builder .watch-hotspots path:hover {
+  fill: #1849670f;
+}
+.zzz-royale-builder .watch-hotspots path:focus-visible {
+  stroke: var(--selection);
+  stroke-width: 3;
+  stroke-dasharray: 8 5;
+  fill: #18496712;
+}
+.zzz-royale-builder .image-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  text-align: center;
+  background: #fff;
+  color: var(--muted);
+  font-size: 14px;
+}
+.zzz-royale-builder .preview-logo {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  width: 56px;
+  height: 56px;
+  pointer-events: none;
+  user-select: none;
+}
+.zzz-royale-builder .preview-logo-mark {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.zzz-royale-builder .preview-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 12px;
+  color: #8a8295;
+  padding: 0 5px 12px;
+}
+.zzz-royale-builder .active-caption {
+  color: var(--selection);
+  font-weight: 600;
+} /* ---------------------------------------------------------- summary */
+
+.zzz-royale-builder .build-summary {
+  margin: 23px 4px 0;
+}
+.zzz-royale-builder .summary-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  gap: 15px;
+}
+.zzz-royale-builder .text-button {
+  font-size: 13px;
+  color: var(--brand);
+  padding: 0;
+  font-weight: 550;
+}
+.zzz-royale-builder .text-button:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.zzz-royale-builder .build-summary dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 126px minmax(0, 1fr);
+  gap: 5px 15px;
+  font-size: 13px;
+}
+.zzz-royale-builder .build-summary dt {
+  color: var(--muted);
+}
+.zzz-royale-builder .build-summary dd {
+  margin: 0;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+/* ---------------------------------------------------------- intro */
+
+.zzz-royale-builder .intro {
+  padding: 0 0 24px;
+}
+.zzz-royale-builder .builder-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  min-width: 0;
+}
+.zzz-royale-builder .builder-logo {
+  display: block;
+  flex: 0 0 72px;
+  width: 72px;
+  height: auto;
+}
+.zzz-royale-builder h1 {
+  font-family: "Manrope", Inter, sans-serif;
+  font-size: 36px;
+  letter-spacing: -1px;
+  line-height: 1.15;
+  margin: 0;
+  min-width: 0;
+  font-weight: 800;
+}
+.zzz-royale-builder h1 > span {
+  color: var(--brand);
+}
+.zzz-royale-builder .intro p {
+  margin: 0;
+  color: #757080;
+  font-size: 15px;
+  line-height: 1.65;
+}
+.zzz-royale-builder .build-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+/* ---------------------------------------------------------- sections */
+
+.zzz-royale-builder .option-section {
+  padding: 23px 0;
+  border-top: 1px solid #e5e5e5;
+}
+.zzz-royale-builder .section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+.zzz-royale-builder .section-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-family: "Manrope", Inter, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  margin: 0;
+}
+.zzz-royale-builder .step {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #1a1a1a;
+  color: #ffffff;
+  letter-spacing: 0;
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.zzz-royale-builder .selection-label {
+  font-size: 13px;
+  color: #655a77;
+  text-align: right;
+}
+.zzz-royale-builder .included-label {
+  font-size: 12px;
+  color: #8b8297;
+}
+
+/* ---------------------------------------------------------- choices */
+
+.zzz-royale-builder .choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+.zzz-royale-builder .choice {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 10px;
+  padding: 11px 10px;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  border-radius: var(--radius);
+  min-height: 78px;
+  position: relative;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    box-shadow 0.15s;
+}
+.zzz-royale-builder .choice:hover {
+  border-color: var(--selection-hover);
+  background: var(--selection-pale);
+}
+.zzz-royale-builder .choice[aria-checked="true"] {
+  border-color: var(--selection);
+  background: var(--selection-pale);
+  box-shadow: inset 0 0 0 0.25px var(--selection);
+}
+.zzz-royale-builder .choice[aria-checked="true"]::after {
+  content: "✓";
+  position: absolute;
+  right: 6px;
+  top: 3px;
+  font-size: 12px;
+  color: var(--selection);
+  font-weight: 700;
+}
+.zzz-royale-builder .model-img-wrap {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1.5px solid #e5e5e5;
+  background: #f3f3f4;
+}
+.zzz-royale-builder .model-watch-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 28%;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.zzz-royale-builder .choice-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.zzz-royale-builder .choice-name {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.zzz-royale-builder .choice-description {
+  font-size: 12px;
+  color: #92879f;
+  line-height: 1.3;
+} /* -------------------------------------------------------- windows */
+
+.zzz-royale-builder .window-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+.zzz-royale-builder .window-option {
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 4px 10px;
+  position: relative;
+  background: #fff;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.zzz-royale-builder .window-option:hover {
+  border-color: var(--selection-hover);
+}
+.zzz-royale-builder .window-option[aria-pressed="true"] {
+  border-color: var(--selection);
+  background: var(--selection-pale);
+  box-shadow: inset 0 0 0 0.25px var(--selection);
+}
+.zzz-royale-builder .window-option svg {
+  height: 46px;
+  width: 58px;
+  stroke: none;
+  fill: none;
+}
+.zzz-royale-builder .window-option > span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.zzz-royale-builder .window-option[aria-pressed="true"] > span {
+  color: var(--ink);
+}
+.zzz-royale-builder .window-filter-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid #0002;
+}
+.zzz-royale-builder .window-decal-dot {
+  object-fit: cover;
+  overflow: hidden;
+}
+.zzz-royale-builder .window-description {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  color: #948b9e;
+  margin: 12px 0 21px;
+}
+.zzz-royale-builder .current-filter {
+  color: var(--selection);
+}
+
+/* ---------------------------------------------------------- filters */
+
+.zzz-royale-builder .filter-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.zzz-royale-builder .filter-fieldset legend {
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 1px;
+  color: #8c809c;
+  margin-bottom: 11px;
+  padding: 0;
+}
+.zzz-royale-builder .color-options {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px 8px;
+}
+.zzz-royale-builder .color-option {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 1px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+}
+.zzz-royale-builder .color-option:hover {
+  background: var(--surface);
+}
+.zzz-royale-builder .color-option[aria-checked="true"] {
+  border-color: var(--selection);
+  background: var(--selection-pale);
+}
+.zzz-royale-builder .color-disc {
+  width: 39px;
+  height: 39px;
+  display: block;
+  border-radius: 50%;
+  border: 1px solid #0002;
+  box-shadow: inset 0 0 0 2px #ffffff85;
+  position: relative;
+}
+.zzz-royale-builder .color-option[aria-checked="true"] .color-disc::after {
+  content: "✓";
+  display: grid;
+  place-items: center;
+  position: absolute;
+  inset: 0;
+  color: #fff;
+  text-shadow: 0 1px 3px #0008;
+  font-size: 15px;
+  font-weight: 700;
+}
+.zzz-royale-builder .color-option[data-value="none"] .color-disc::after {
+  color: var(--selection);
+  text-shadow: none;
+}
+.zzz-royale-builder .color-name {
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: center;
+  color: #736880;
+}
+.zzz-royale-builder .gradient-fieldset {
+  margin-top: 21px;
+}
+.zzz-royale-builder .gradient-options {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 7px;
+}
+.zzz-royale-builder .gradient-options .color-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.zzz-royale-builder .gradient-options .color-name b {
+  font-weight: 600;
+}
+.zzz-royale-builder .window-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 19px;
+}
+.zzz-royale-builder .outline-button {
+  border: 1px solid #d9cee9;
+  border-radius: 22px;
+  padding: 8px 13px;
+  font-size: 12px;
+  color: #665079;
+  background: #fff;
+  min-height: 36px;
+}
+.zzz-royale-builder .outline-button:hover {
+  background: var(--brand-pale);
+  border-color: var(--brand);
+}
+.zzz-royale-builder .window-actions .outline-button[aria-pressed="true"] {
+  border-color: var(--selection);
+  background: var(--selection-pale);
+}
+.zzz-royale-builder .clear-button {
+  font-size: 12px;
+  color: #91839e;
+}
+
+/* ---------------------------------------------------------- decals */
+
+.zzz-royale-builder .decal-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0 0 22px;
+  min-width: 0;
+}
+.zzz-royale-builder .decal-fieldset legend {
+  padding: 0;
+  margin-bottom: 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  color: #82758e;
+}
+.zzz-royale-builder .decal-fieldset legend span {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-left: 10px;
+  color: var(--muted);
+}
+.zzz-royale-builder .decal-options {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 9px 5px;
+}
+.zzz-royale-builder .decal-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 93px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  padding: 8px 3px 7px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.zzz-royale-builder .decal-disc {
+  display: block;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #c9c5ce;
+  box-shadow: inset 0 0 0 1px #ffffff80;
+}
+.zzz-royale-builder .decal-disc img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.zzz-royale-builder .decal-none {
+  background: repeating-linear-gradient(45deg, #fff 0 4px, #dcdce2 4px 6px);
+}
+.zzz-royale-builder .decal-option:hover {
+  border-color: var(--selection-hover);
+}
+.zzz-royale-builder .decal-option[aria-checked="true"] {
+  border-color: var(--selection);
+  background: var(--selection-pale);
+}
+.zzz-royale-builder .decal-finish {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.zzz-royale-builder .decal-finish-options {
+  display: flex;
+  gap: 6px;
+}
+.zzz-royale-builder .decal-finish-option {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 13px;
+  padding: 8px 12px;
+}
+.zzz-royale-builder .decal-finish-option[aria-checked="true"] {
+  border-color: var(--selection);
+  background: var(--selection-pale);
+  color: var(--selection);
+}
+
+/* ---------------------------------------------------------- services */
+
+.zzz-royale-builder .service-heading-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+}
+.zzz-royale-builder .service-toggle {
+  font-size: 14px;
+  font-weight: 650;
+  min-height: 36px;
+  padding: 6px 0 6px 6px;
+  color: var(--selection);
+}
+.zzz-royale-builder
+  .optional-service[data-expanded="false"]
+  .section-heading {
+  margin-bottom: 0;
+}
+.zzz-royale-builder .removal-help {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #757080;
+  margin: -3px 0 15px;
+}
+.zzz-royale-builder .removal-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+.zzz-royale-builder .removal-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 11px;
+  min-height: 50px;
+  border: 1px solid #e5e5e5;
+  border-radius: var(--radius);
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.3;
+}
+.zzz-royale-builder .removal-choice:hover {
+  border-color: var(--selection-hover);
+  background: var(--selection-pale);
+}
+.zzz-royale-builder .removal-choice[data-selected="true"] {
+  border-color: var(--selection);
+  background: var(--selection-pale);
+}
+.zzz-royale-builder .removal-choice input {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  margin: 0;
+  accent-color: var(--selection);
+  cursor: pointer;
+}
+.zzz-royale-builder .removal-choice:focus-within {
+  outline: 3px solid var(--selection-focus);
+  outline-offset: 3px;
+}
+.zzz-royale-builder .removal-all {
+  grid-column: 1 / -1;
+  font-weight: 650;
+  min-height: 51px;
+} /* ---------------------------------------------------------- price */
+
+.zzz-royale-builder .price-breakdown {
+  border-top: 1px solid #e5e5e5;
+  padding-top: 20px;
+  font-size: 13px;
+}
+.zzz-royale-builder .price-breakdown > div,
+.zzz-royale-builder .upgrade-price {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+.zzz-royale-builder .price-breakdown > div {
+  margin-bottom: 9px;
+}
+/* Beats `.price-breakdown > div`, which would otherwise lay the upgrade
+   rows out side by side instead of stacking them. */
+.zzz-royale-builder .price-breakdown > .upgrade-prices {
+  display: block;
+  color: #716978;
+}
+.zzz-royale-builder .upgrade-price {
+  margin-bottom: 7px;
+}
+.zzz-royale-builder .price-breakdown .total-line {
+  border-top: 1px dashed var(--line);
+  margin-top: 15px;
+  padding-top: 14px;
+  align-items: baseline;
+  font-size: 15px;
+}
+.zzz-royale-builder .total-line strong:last-child {
+  font-size: 26px;
+  letter-spacing: -0.5px;
+}
+.zzz-royale-builder .total-line strong > span {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0;
+}
+.zzz-royale-builder .price-breakdown p {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 7px 0 0;
+}
+
+/* ---------------------------------------------------------- coming soon */
+
+.zzz-royale-builder .coming-soon-section {
+  opacity: 0.45;
+  pointer-events: none;
+  user-select: none;
+}
+.zzz-royale-builder .coming-soon-badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: #807b8b;
+  background: #f0eef4;
+  border: 1px solid #e0dce8;
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+
+/* ---------------------------------------------------------- order CTA */
+
+.zzz-royale-builder .order-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+.zzz-royale-builder .order-btn-primary {
+  display: block;
+  background: #1a1a1a;
+  color: #fff;
+  text-align: center;
+  padding: 15px 20px;
+  border-radius: 4px;
+  font-family: "Manrope", Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.zzz-royale-builder .order-btn-primary:hover {
+  background: #333333;
+  color: #fff;
+}
+.zzz-royale-builder .order-btn-secondary {
+  display: block;
+  text-align: center;
+  padding: 13px 20px;
+  border-radius: 4px;
+  border: 1.5px solid #1a1a1a;
+  font-size: 14px;
+  color: #1a1a1a;
+  text-decoration: none;
+  background: #fff;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.zzz-royale-builder .order-btn-secondary:hover {
+  background: #1a1a1a;
+  color: #fff;
+}
+.zzz-royale-builder .order-mto-note {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 4px;
+} /* ---------------------------------------------------------- toast */
+
+.zzz-royale-builder .toast {
+  position: fixed;
+  bottom: 110px;
+  left: 50%;
+  transform: translate(-50%, 12px);
+  background: #24202c;
+  color: #fff;
+  border-radius: 10px;
+  padding: 11px 19px;
+  font-size: 13px;
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+  max-width: 90vw;
+  text-align: center;
+}
+.zzz-royale-builder .toast.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+} /* ---------------------------------------------------------- responsive */
+
+@media (min-width: 1450px) {
+  .zzz-royale-builder .watch-stage {
+    max-height: 730px;
+  }
+  .zzz-royale-builder .builder {
+    gap: 74px;
+    margin-top: 45px;
+  }
+  .zzz-royale-builder .preview-sticky {
+    top: 30px;
+  }
+}
+
+@media (max-width: 1150px) {
+  .zzz-royale-builder .builder {
+    gap: 34px;
+    margin-top: 30px;
+    grid-template-columns: minmax(0, 0.87fr) minmax(0, 1.13fr);
+  }
+  .zzz-royale-builder .preview-card {
+    padding: 13px;
+  }
+  .zzz-royale-builder .choice {
+    gap: 7px;
+    padding: 10px 7px;
+  }
+  .zzz-royale-builder .choice-name,
+  .zzz-royale-builder .choice-description {
+    font-size: 12px;
+  }
+  .zzz-royale-builder .model-img-wrap {
+    width: 44px;
+    height: 44px;
+  }
+  .zzz-royale-builder .build-summary dl {
+    font-size: 12px;
+    grid-template-columns: 110px minmax(0, 1fr);
+  }
+  .zzz-royale-builder h1 {
+    font-size: 32px;
+  }
+  .zzz-royale-builder .color-options {
+    gap: 8px 3px;
+  }
+  .zzz-royale-builder .color-disc {
+    width: 35px;
+    height: 35px;
+  }
+  .zzz-royale-builder .decal-options {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .zzz-royale-builder .builder {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 650px;
+    gap: 30px;
+    row-gap: 10px;
+    padding: 0 20px 40px;
+    margin-top: 24px;
+  }
+  .zzz-royale-builder .preview-column {
+    display: contents;
+  }
+  .zzz-royale-builder .preview-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    order: 0;
+    background: #fff;
+    padding-bottom: 6px;
+    /* Reads as a layer, so controls scrolling under it don't look clipped. */
+    box-shadow: 0 11px 12px -10px rgba(28, 26, 32, 0.22);
+  }
+  .zzz-royale-builder .controls-column {
+    order: 1;
+  }
+  .zzz-royale-builder
+    :is(section, fieldset, button, label, input, .window-option) {
+    scroll-margin-top: calc(var(--sticky-preview, 0px) + 12px);
+  }
+  .zzz-royale-builder .watch-stage {
+    max-height: 38vh;
+    min-height: 0;
+    aspect-ratio: 1033 / 1300;
+    width: min(100%, calc(38vh * 0.795));
+    margin: 0 auto;
+  }
+  .zzz-royale-builder .build-summary {
+    display: none;
+  }
+  .zzz-royale-builder .preview-card {
+    padding: 10px;
+  }
+  .zzz-royale-builder .preview-topline {
+    padding-bottom: 8px;
+  }
+  .zzz-royale-builder .preview-logo {
+    width: 40px;
+    height: 40px;
+    top: 10px;
+    left: 10px;
+  }
+  .zzz-royale-builder .controls-column .case-section {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .zzz-royale-builder .intro {
+    padding-bottom: 21px;
+  }
+  .zzz-royale-builder .intro p {
+    max-width: 430px;
+  }
+  .zzz-royale-builder .preview-caption .preview-instruction {
+    display: none;
+  }
+  .zzz-royale-builder .choice-name {
+    font-size: 14px;
+  }
+  .zzz-royale-builder .choice {
+    padding: 12px 10px;
+    gap: 10px;
+    min-height: 70px;
+  }
+  .zzz-royale-builder .model-img-wrap {
+    width: 48px;
+    height: 48px;
+  }
+  .zzz-royale-builder .color-disc {
+    width: 42px;
+    height: 42px;
+  }
+  .zzz-royale-builder .window-option > span {
+    font-size: 13px;
+  }
+  .zzz-royale-builder .option-section {
+    padding: 24px 0;
+  }
+  .zzz-royale-builder .window-description,
+  .zzz-royale-builder .included-label,
+  .zzz-royale-builder .selection-label {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .zzz-royale-builder .builder {
+    padding: 0 14px 140px;
+    margin-top: 17px;
+    gap: 25px;
+  }
+  .zzz-royale-builder .preview-card {
+    border-radius: 20px;
+  }
+  .zzz-royale-builder .intro h1 {
+    font-size: 30px;
+  }
+  .zzz-royale-builder .intro p {
+    font-size: 14px;
+  }
+  .zzz-royale-builder .builder-logo {
+    flex-basis: 56px;
+    width: 56px;
+    height: 56px;
+  }
+  .zzz-royale-builder .choice-grid {
+    gap: 8px;
+  }
+  .zzz-royale-builder .case-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .zzz-royale-builder .choice {
+    min-height: 65px;
+  }
+  .zzz-royale-builder .choice-name {
+    font-size: 13px;
+  }
+  .zzz-royale-builder .window-options {
+    gap: 7px;
+  }
+  .zzz-royale-builder .window-option {
+    padding: 11px 2px;
+  }
+  .zzz-royale-builder .window-option svg {
+    width: 49px;
+    height: 43px;
+  }
+  .zzz-royale-builder .color-options {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px 7px;
+  }
+  .zzz-royale-builder .gradient-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .zzz-royale-builder .gradient-options .color-disc {
+    width: 43px;
+    height: 43px;
+  }
+  .zzz-royale-builder .decal-options {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .zzz-royale-builder .decal-disc {
+    flex-basis: 50px;
+    width: 50px;
+    height: 50px;
+  }
+  .zzz-royale-builder .removal-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .zzz-royale-builder .removal-choice {
+    min-height: 55px;
+  }
+  .zzz-royale-builder .optional-service .section-heading {
+    gap: 8px;
+  }
+  .zzz-royale-builder .optional-service .section-heading h2 {
+    font-size: 18px;
+  }
+  .zzz-royale-builder .service-heading-actions {
+    gap: 9px;
+  }
+  .zzz-royale-builder .service-heading-actions .selection-label {
+    font-size: 12px;
+  }
+  .zzz-royale-builder .window-actions {
+    gap: 15px;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 360px) {
+  .zzz-royale-builder .preview-caption {
+    padding-left: 1px;
+    padding-right: 1px;
+    gap: 6px;
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zzz-royale-builder * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

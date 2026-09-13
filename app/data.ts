@@ -206,7 +206,7 @@ export const LINEUP: readonly Build[] = [
     slug: "custom-royale",
     baseWatchId: "ae1200whd-1av",
     mods: [{ kind: "custom-royale", label: "Custom Royale Build" }],
-    images: ["/lineups/custom_royale.png", "/lineups/custom_royale_case_options.png"],
+    images: ["/custom_card/black.png", "/custom_card/silver.png", "/custom_card/gold.png"],
     status: "made-to-order",
     order: 0,
   },
@@ -215,7 +215,7 @@ export const LINEUP: readonly Build[] = [
     baseWatchId: "ae1200wh-1cvcf",
     mods: [{ kind: "color-filter", colorCount: 3, label: "3-Color Black" }],
     images: ["/lineups/normalized/ae1200_3color_black_strap.png"],
-    status: "available",
+    status: "sold-out",
     order: 1,
   },
   {
@@ -226,7 +226,7 @@ export const LINEUP: readonly Build[] = [
       { kind: "strap", name: "rubber strap", color: "orange", label: "Orange Rubber Strap" },
     ],
     images: ["/lineups/normalized/ae1200_3color.png"],
-    status: "available",
+    status: "sold-out",
     order: 2,
   },
   {
