@@ -35,7 +35,7 @@ export default function RootLayout({
           before React hydrates. suppressHydrationWarning on these two tags
           is the standard fix — see https://react.dev/link/hydration-mismatch */}
       <body suppressHydrationWarning>
-        {children}
+{children}
         <Analytics />
       </body>
     </html>

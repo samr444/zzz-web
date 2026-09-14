@@ -31,8 +31,18 @@ export default async function BuildPage({
   const soldOut = build.status === "sold-out";
   const madeToOrder = build.status === "made-to-order";
 
+  const isSpiderman = slug === 'ae1200-spiderman';
+
   return (
     <>
+      {isSpiderman && (
+        <div className="spidey-wrap" aria-hidden>
+          <div className="spidey-web" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="spidey-img" src="https://i.ibb.co/XDFkXMx/spiderman-colgado.png" alt="" />
+          <div className="spidey-shadow" />
+        </div>
+      )}
       <header className="nav">
         <div className="nav-inner">
           <Link href="/" className="nav-logo">
@@ -45,7 +55,7 @@ export default async function BuildPage({
             <Link className="nav-link-scroll" href="/#about">
               About
             </Link>
-            <Link href="/try-out">Customize</Link>
+            <Link href="/builds/custom-royale">Customise in 3D Builder</Link>
           </nav>
         </div>
       </header>

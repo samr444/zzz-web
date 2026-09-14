@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { BuildCustomWatchButton } from "./components/BuildCustomWatchButton";
 import { CatalogCard } from "./components/CatalogCard";
 import { getLineup, INSTAGRAM_URL, WHATSAPP_NUMBER } from "./data";
 
@@ -20,7 +19,7 @@ export default function Home() {
             <a className="nav-link-scroll" href="#about">
               About
             </a>
-            <Link href="/try-out">Customize</Link>
+            <Link href="/builds/custom-royale">Customise in 3D Builder</Link>
           </nav>
         </div>
       </header>
@@ -32,11 +31,18 @@ export default function Home() {
             Precision engineering meets curated aesthetics. Elevating classic digital
             timepieces for the modern collector.
           </p>
-          <div className="hero-cta-wrap">
-            <BuildCustomWatchButton />
-          </div>
           <div className="hero-image-frame">
-            <img src="/hero-mobile.png" alt="ZzzCulture hand-modded Casio instrument panel" />
+            <div className="hero-watch-frame">
+              <img src="/hero_image_cut.png" alt="ZzzCulture hand-modded Casio instrument panel" className="hero-watch-overlay" />
+              <video
+                src="/hero_video/hero-colour-grid.webm"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="hero-watch-video"
+              />
+            </div>
           </div>
         </div>
       </section>
