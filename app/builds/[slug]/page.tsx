@@ -5,7 +5,9 @@ import { getBuild, getLineup, formatINR, INSTAGRAM_URL, WHATSAPP_NUMBER } from "
 import BuildGallery from "../../components/BuildGallery";
 
 export async function generateStaticParams() {
-  return getLineup().map((b) => ({ slug: b.slug }));
+  return getLineup()
+    .filter((b) => b.status !== "coming-soon")
+    .map((b) => ({ slug: b.slug }));
 }
 
 export async function generateMetadata({

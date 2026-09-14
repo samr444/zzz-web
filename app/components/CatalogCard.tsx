@@ -10,18 +10,20 @@ interface CatalogCardProps {
 export function CatalogCard({ build }: CatalogCardProps) {
   const soldOut = build.status === "sold-out";
   const madeToOrder = build.status === "made-to-order";
+  const comingSoon = build.status === "coming-soon";
   const alt = `${build.title} — ${build.subtitle}`;
 
   const isCustomRoyale = build.slug === 'custom-royale';
 
   const imageBox = (
-    <div className={`catalog-card-image${soldOut ? " is-sold-out" : ""}${isCustomRoyale ? " custom-royale-card" : ""}`}>
+    <div className={`catalog-card-image${soldOut ? " is-sold-out" : ""}${comingSoon ? " is-coming-soon" : ""}${isCustomRoyale ? " custom-royale-card" : ""}`}>
       {build.images.length > 1 ? (
         <CardImageSlider images={build.images} alt={alt} soldOut={soldOut} />
       ) : (
         <>
           <img src={build.images[0]} alt={alt} />
           {soldOut && <span className="catalog-card-sold-out-badge">Sold Out</span>}
+          {comingSoon && <span className="catalog-card-coming-soon-badge">Coming Soon</span>}
         </>
       )}
       {isCustomRoyale && (
@@ -38,7 +40,7 @@ export function CatalogCard({ build }: CatalogCardProps) {
 
   const card = (
     <div className="catalog-card">
-      {soldOut ? (
+      {soldOut || comingSoon ? (
         imageBox
       ) : (
         <Link href={`/builds/${build.slug}`} className="catalog-card-image-link">
@@ -54,19 +56,27 @@ export function CatalogCard({ build }: CatalogCardProps) {
         ) : (
           <div>
             <p className="catalog-card-name">{build.title}</p>
-            <span className="catalog-card-tag">
-              {build.subtitle}
-              {madeToOrder ? " · Made to Order" : ""}
-            </span>
-            <span className="catalog-card-price-breakdown">
-              Model {formatINR(build.basePrice)}
-              {build.modLines.map((line, i) => (
-                <span key={i}> + {line.label} {formatINR(line.amount)}</span>
-              ))}
-            </span>
+            {!comingSoon && (
+              <span className="catalog-card-tag">
+                {build.subtitle}
+                {madeToOrder ? " · Made to Order" : ""}
+              </span>
+            )}
+            {comingSoon ? (
+              <span className="catalog-card-price-breakdown catalog-card-one-off">
+                One-Offs &amp; Limited Editions
+              </span>
+            ) : (
+              <span className="catalog-card-price-breakdown">
+                Model {formatINR(build.basePrice)}
+                {build.modLines.map((line, i) => (
+                  <span key={i}> + {line.label} {formatINR(line.amount)}</span>
+                ))}
+              </span>
+            )}
           </div>
         )}
-        {!isCustomRoyale && (
+        {!isCustomRoyale && !comingSoon && (
           <p className="catalog-card-price">{build.formattedPrice}</p>
         )}
       </div>

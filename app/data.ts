@@ -107,6 +107,15 @@ export const BASE_WATCHES: readonly BaseWatch[] = [
     inStock: true,
   },
   {
+    id: "f91wb-1a",
+    displayName: "Casio F91WB-1A",
+    tag: "black frame, black case, black strap",
+    baseName: "Casio F91",
+    basePrice: 1695,
+    colorway: { frame: "black", case: "black", strap: "black" },
+    inStock: true,
+  },
+  {
     id: "a158wa-1",
     displayName: "Casio A158WA-1",
     tag: "black frame, black case, black strap",
@@ -187,7 +196,7 @@ export function modPrice(mod: Mod, base: BaseWatch): number {
 /* 3. Lineup                                                           */
 /* ------------------------------------------------------------------ */
 
-export type BuildStatus = "available" | "sold-out" | "made-to-order";
+export type BuildStatus = "available" | "sold-out" | "made-to-order" | "coming-soon";
 
 export interface Build {
   slug: string;
@@ -276,6 +285,46 @@ export const LINEUP: readonly Build[] = [
     images: ["/lineups/normalized/ae1200_spiderman_0.1.png"],
     status: "available",
     order: 8,
+  },
+  {
+    slug: "a158-deadpool",
+    baseWatchId: "a158wa-1",
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Deadpool" }],
+    images: ["/lineups/a158_deadpool.png"],
+    status: "available",
+    order: 9,
+  },
+  {
+    slug: "f91-black-spiderman",
+    baseWatchId: "f91-black",
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Spiderman" }],
+    images: ["/lineups/f91_black_spiderman.png"],
+    status: "available",
+    order: 10,
+  },
+  {
+    slug: "f91-blue-van-gogh",
+    baseWatchId: "f91-blue",
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Van Gogh" }],
+    images: ["/lineups/f91_blue_vincent_van_gogh.png"],
+    status: "available",
+    order: 11,
+  },
+  {
+    slug: "f91-black-gradient",
+    baseWatchId: "f91wb-1a",
+    mods: [{ kind: "color-filter", colorCount: 1, label: "Gradient Theme" }],
+    images: ["/lineups/f91_black_gradient_theme.png"],
+    status: "available",
+    order: 12,
+  },
+  {
+    slug: "ae1200-nasa-future",
+    baseWatchId: "ae1200whd-1av",
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: true, label: "NASA Future Concept" }],
+    images: ["/lineups/ae1200_future_concept_coming_soon.png"],
+    status: "coming-soon",
+    order: 13,
   },
 ];
 
