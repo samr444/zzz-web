@@ -163,7 +163,7 @@ export default function Builder() {
   const properties = useMemo(() => buildProperties(build), [build]);
   const orderUrl = useMemo(() => {
     const lines = [
-      "Hi! I’d like to order a Custom Royale Build.",
+      "Hi! I'd like to order a Custom Royale Build.",
       '',
       ...Object.entries(properties).map(([k, v]) => `${k}: ${v}`),
       '',
@@ -297,11 +297,17 @@ export default function Builder() {
     update({ textRemovals: checked ? TEXT_REMOVALS.map((option) => option.id) : [] });
   };
 
-  const copyBuild = async () => {
+  const shareBuild = async () => {
     const url = new URL(window.location.href);
     // Exclude customDecalUrl — data URLs are too large for a shareable link.
     const { customDecalUrl: _omit, ...shareable } = build;
     url.hash = new URLSearchParams({ build: JSON.stringify(shareable) }).toString();
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'My Casio Royale Build', url: url.href });
+        return;
+      } catch { /* user cancelled */ }
+    }
     try {
       await navigator.clipboard.writeText(url.href);
       showToast('Build link copied.');
@@ -379,8 +385,11 @@ export default function Builder() {
                 <h2 className="eyebrow" id="summary-title">
                   YOUR BUILD
                 </h2>
-                <button type="button" className="text-button" onClick={copyBuild}>
-                  Copy link to build ↗
+                <button type="button" className="text-button" onClick={shareBuild}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13" style={{ verticalAlign: 'middle', marginRight: '5px' }}>
+                    <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Share this
                 </button>
               </div>
               <dl>
