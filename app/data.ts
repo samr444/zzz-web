@@ -133,7 +133,7 @@ export const BASE_WATCHES: readonly BaseWatch[] = [
 /* ------------------------------------------------------------------ */
 
 export type Mod =
-  | { kind: "color-filter"; colorCount: 1 | 2 | 3 | 4; label: string }
+  | { kind: "color-filter"; colorCount: 1 | 2 | 3 | 4; label: string; priceOverride?: number }
   | { kind: "custom-print"; imageCount: number; transparent: boolean; label: string; priceOverride?: number }
   | { kind: "strap"; name: string; color: string; label: string }
   | { kind: "custom-faceplate"; name: string; label: string }
@@ -179,6 +179,7 @@ const CUSTOM_ROYALE_BUILD_PRICE = 2000;
 export function modPrice(mod: Mod, base: BaseWatch): number {
   switch (mod.kind) {
     case "color-filter":
+      if (mod.priceOverride !== undefined) return mod.priceOverride;
       return COLOR_FILTER_TIERS[mod.colorCount] ?? 0;
     case "custom-print":
       if (mod.priceOverride !== undefined) return mod.priceOverride;
@@ -206,6 +207,8 @@ export interface Build {
   images: string[];
   status: BuildStatus;
   order: number;
+  /** Hide the base + mod price breakdown; show only the total. */
+  hideBreakdown?: boolean;
 }
 
 // Image paths point at what's actually in public/lineups/normalized/ (the
@@ -258,26 +261,29 @@ export const LINEUP: readonly Build[] = [
   {
     slug: "f91-luffy-blue",
     baseWatchId: "f91-blue",
-    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Luffy Blue" }],
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Luffy Blue", priceOverride: 1304 }],
     images: ["/lineups/normalized/blue_f91_luffy.png"],
     status: "sold-out",
     order: 5,
+    hideBreakdown: true,
   },
   {
     slug: "a158-naruto",
     baseWatchId: "a158wa-1",
-    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Naruto" }],
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Naruto", priceOverride: 1604 }],
     images: ["/lineups/normalized/casio_a158_naruto.png"],
     status: "available",
     order: 6,
+    hideBreakdown: true,
   },
   {
     slug: "a158-green-filter",
     baseWatchId: "a158wa-1",
-    mods: [{ kind: "color-filter", colorCount: 1, label: "Green Filter" }],
+    mods: [{ kind: "color-filter", colorCount: 1, label: "Green Filter", priceOverride: 1604 }],
     images: ["/lineups/normalized/a158_green_filter.png"],
     status: "available",
     order: 7,
+    hideBreakdown: true,
   },
   {
     slug: "dw291h-red-filter",
@@ -298,34 +304,38 @@ export const LINEUP: readonly Build[] = [
   {
     slug: "a158-deadpool",
     baseWatchId: "a158wa-1",
-    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Deadpool" }],
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Deadpool", priceOverride: 1604 }],
     images: ["/lineups/a158_deadpool.png"],
     status: "available",
     order: 10,
+    hideBreakdown: true,
   },
   {
     slug: "f91-black-spiderman",
     baseWatchId: "f91-black",
-    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Spiderman" }],
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Spiderman", priceOverride: 1704 }],
     images: ["/lineups/f91_black_spiderman.png"],
     status: "available",
     order: 11,
+    hideBreakdown: true,
   },
   {
     slug: "f91-blue-van-gogh",
     baseWatchId: "f91-blue",
-    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Van Gogh" }],
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Van Gogh", priceOverride: 1304 }],
     images: ["/lineups/f91_blue_vincent_van_gogh.png"],
     status: "sold-out",
     order: 12,
+    hideBreakdown: true,
   },
   {
     slug: "f91-black-gradient",
     baseWatchId: "f91wb-1a",
-    mods: [{ kind: "color-filter", colorCount: 1, label: "Gradient Theme" }],
+    mods: [{ kind: "color-filter", colorCount: 1, label: "Gradient Theme", priceOverride: 1304 }],
     images: ["/lineups/f91_black_gradient_theme.png"],
     status: "sold-out",
     order: 13,
+    hideBreakdown: true,
   },
   {
     slug: "ae1200-nasa-future",
@@ -361,6 +371,7 @@ export interface ResolvedBuild {
   formattedPrice: string;
   whatsappUrl: string;
   instagramUrl: string;
+  hideBreakdown: boolean;
 }
 
 const byId = new Map(BASE_WATCHES.map((w) => [w.id, w]));
@@ -401,6 +412,7 @@ export function resolveBuild(build: Build): ResolvedBuild {
     formattedPrice: formatINR(price),
     whatsappUrl: buildWhatsAppUrl(title, subtitle, price),
     instagramUrl: INSTAGRAM_URL,
+    hideBreakdown: build.hideBreakdown ?? false,
   };
 }
 

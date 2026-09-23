@@ -90,7 +90,7 @@ export default async function BuildPage({
                   <p className="build-option-label">{line.label}</p>
                   <div className="build-option-pills">
                     <span className="build-pill is-selected">{line.label}</span>
-                    <span className="build-pill-price">{formatINR(line.amount)}</span>
+                    {!build.hideBreakdown && <span className="build-pill-price">{formatINR(line.amount)}</span>}
                   </div>
                 </div>
               ))}
@@ -100,7 +100,7 @@ export default async function BuildPage({
                 <p className="build-option-label">Base Watch</p>
                 <div className="build-option-pills">
                   <span className="build-pill is-selected">{build.base.displayName}</span>
-                  <span className="build-pill-price">{formatINR(build.basePrice)}</span>
+                  {!build.hideBreakdown && <span className="build-pill-price">{formatINR(build.basePrice)}</span>}
                 </div>
               </div>
 
@@ -111,22 +111,31 @@ export default async function BuildPage({
               )}
 
               {/* Price breakdown */}
-              <div className="build-breakdown">
-                <div className="build-breakdown-row">
-                  <span>Base watch</span>
-                  <span>{formatINR(build.basePrice)}</span>
-                </div>
-                {build.modLines.map((line, i) => (
-                  <div className="build-breakdown-row" key={i}>
-                    <span>{line.label}</span>
-                    <span>{formatINR(line.amount)}</span>
+              {!build.hideBreakdown ? (
+                <div className="build-breakdown">
+                  <div className="build-breakdown-row">
+                    <span>Base watch</span>
+                    <span>{formatINR(build.basePrice)}</span>
                   </div>
-                ))}
-                <div className="build-breakdown-row build-breakdown-total">
-                  <span>Total</span>
-                  <span>{build.formattedPrice}</span>
+                  {build.modLines.map((line, i) => (
+                    <div className="build-breakdown-row" key={i}>
+                      <span>{line.label}</span>
+                      <span>{formatINR(line.amount)}</span>
+                    </div>
+                  ))}
+                  <div className="build-breakdown-row build-breakdown-total">
+                    <span>Total</span>
+                    <span>{build.formattedPrice}</span>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="build-breakdown">
+                  <div className="build-breakdown-row build-breakdown-total">
+                    <span>Total</span>
+                    <span>{build.formattedPrice}</span>
+                  </div>
+                </div>
+              )}
 
               {/* Order buttons */}
               {soldOut ? (

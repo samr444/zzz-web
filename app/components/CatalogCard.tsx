@@ -62,16 +62,9 @@ export function CatalogCard({ build }: CatalogCardProps) {
                 {madeToOrder ? " · Made to Order" : ""}
               </span>
             )}
-            {comingSoon ? (
+            {comingSoon && (
               <span className="catalog-card-price-breakdown catalog-card-one-off">
                 One-Offs &amp; Limited Editions
-              </span>
-            ) : (
-              <span className="catalog-card-price-breakdown">
-                Model {formatINR(build.basePrice)}
-                {build.modLines.map((line, i) => (
-                  <span key={i}> + {line.label} {formatINR(line.amount)}</span>
-                ))}
               </span>
             )}
           </div>
