@@ -134,7 +134,7 @@ export const BASE_WATCHES: readonly BaseWatch[] = [
 
 export type Mod =
   | { kind: "color-filter"; colorCount: 1 | 2 | 3 | 4; label: string }
-  | { kind: "custom-print"; imageCount: number; transparent: boolean; label: string }
+  | { kind: "custom-print"; imageCount: number; transparent: boolean; label: string; priceOverride?: number }
   | { kind: "strap"; name: string; color: string; label: string }
   | { kind: "custom-faceplate"; name: string; label: string }
   | { kind: "custom-royale"; label: string };
@@ -181,6 +181,7 @@ export function modPrice(mod: Mod, base: BaseWatch): number {
     case "color-filter":
       return COLOR_FILTER_TIERS[mod.colorCount] ?? 0;
     case "custom-print":
+      if (mod.priceOverride !== undefined) return mod.priceOverride;
       // transparent prints use the tier system; plain prints are flat ₹1000
       return mod.transparent ? customPrintPrice(base.id, mod.imageCount) : 1000;
     case "strap":
@@ -220,12 +221,28 @@ export const LINEUP: readonly Build[] = [
     order: 0,
   },
   {
+    slug: "ae1200-minnal-murali",
+    baseWatchId: "ae1200whd-1av",
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Minnal Murali", priceOverride: 1505 }],
+    images: ["/lineups/ae1200_silver_minnal_murali.png"],
+    status: "available",
+    order: 1,
+  },
+  {
+    slug: "ae1200-spiderman",
+    baseWatchId: "ae1200whd-1av",
+    mods: [{ kind: "custom-print", imageCount: 4, transparent: true, label: "Spiderman" }],
+    images: ["/lineups/normalized/ae1200_spiderman_0.1.png"],
+    status: "available",
+    order: 2,
+  },
+  {
     slug: "ae1200-3-color-black",
     baseWatchId: "ae1200wh-1cvcf",
     mods: [{ kind: "color-filter", colorCount: 3, label: "3-Color Black" }],
     images: ["/lineups/normalized/ae1200_3color_black_strap.png"],
     status: "sold-out",
-    order: 1,
+    order: 3,
   },
   {
     slug: "ae1200-3-color-orange",
@@ -236,7 +253,7 @@ export const LINEUP: readonly Build[] = [
     ],
     images: ["/lineups/normalized/ae1200_3color.png"],
     status: "sold-out",
-    order: 2,
+    order: 4,
   },
   {
     slug: "f91-luffy-blue",
@@ -244,7 +261,7 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Luffy Blue" }],
     images: ["/lineups/normalized/blue_f91_luffy.png"],
     status: "sold-out",
-    order: 3,
+    order: 5,
   },
   {
     slug: "a158-naruto",
@@ -252,7 +269,7 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Naruto" }],
     images: ["/lineups/normalized/casio_a158_naruto.png"],
     status: "available",
-    order: 4,
+    order: 6,
   },
   {
     slug: "a158-green-filter",
@@ -260,7 +277,7 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "color-filter", colorCount: 1, label: "Green Filter" }],
     images: ["/lineups/normalized/a158_green_filter.png"],
     status: "available",
-    order: 5,
+    order: 7,
   },
   {
     slug: "dw291h-red-filter",
@@ -268,7 +285,7 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "color-filter", colorCount: 1, label: "Red Filter" }],
     images: ["/lineups/normalized/casio-dw-291h-red.png"],
     status: "available",
-    order: 6,
+    order: 8,
   },
   {
     slug: "ae1200-yellow-filter",
@@ -276,15 +293,7 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "color-filter", colorCount: 1, label: "Yellow Filter" }],
     images: ["/lineups/normalized/casio-ae-1200whd.png"],
     status: "available",
-    order: 7,
-  },
-  {
-    slug: "ae1200-spiderman",
-    baseWatchId: "ae1200whd-1av",
-    mods: [{ kind: "custom-print", imageCount: 4, transparent: true, label: "Spiderman" }],
-    images: ["/lineups/normalized/ae1200_spiderman_0.1.png"],
-    status: "available",
-    order: 8,
+    order: 9,
   },
   {
     slug: "a158-deadpool",
@@ -292,7 +301,7 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Deadpool" }],
     images: ["/lineups/a158_deadpool.png"],
     status: "available",
-    order: 9,
+    order: 10,
   },
   {
     slug: "f91-black-spiderman",
@@ -300,23 +309,23 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Spiderman" }],
     images: ["/lineups/f91_black_spiderman.png"],
     status: "available",
-    order: 10,
+    order: 11,
   },
   {
     slug: "f91-blue-van-gogh",
     baseWatchId: "f91-blue",
     mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Van Gogh" }],
     images: ["/lineups/f91_blue_vincent_van_gogh.png"],
-    status: "available",
-    order: 11,
+    status: "sold-out",
+    order: 12,
   },
   {
     slug: "f91-black-gradient",
     baseWatchId: "f91wb-1a",
     mods: [{ kind: "color-filter", colorCount: 1, label: "Gradient Theme" }],
     images: ["/lineups/f91_black_gradient_theme.png"],
-    status: "available",
-    order: 12,
+    status: "sold-out",
+    order: 13,
   },
   {
     slug: "ae1200-nasa-future",
@@ -324,7 +333,7 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "custom-print", imageCount: 1, transparent: true, label: "NASA Future Concept" }],
     images: ["/lineups/ae1200_future_concept_coming_soon.png"],
     status: "coming-soon",
-    order: 13,
+    order: 14,
   },
 ];
 

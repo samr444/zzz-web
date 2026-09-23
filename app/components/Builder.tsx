@@ -1,7 +1,7 @@
 'use client';
 
 import './royale-builder.css';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import WatchPreview from './WatchPreview';
 import MiniWatch from './MiniWatch';
 import ZzzMark from './ZzzMark';
@@ -84,11 +84,23 @@ function Art({
   );
 }
 
+const readFileAsDataUrl = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
 /** Tracks whether the artwork for the current case has arrived. */
 function useArtworkReady(build: Build) {
   const caseUrl = CASE_IMAGES[build.case] ?? CASE_IMAGES['resin-silver'];
   const decal = decalById(build.circleDecal?.id);
-  const decalUrl = decal ? decalImage(decal.image, decal.ext) : null;
+  const decalUrl = decal
+    ? decalImage(decal.image, decal.ext)
+    : build.circleDecal?.id === 'custom'
+      ? build.customDecalUrl ?? null
+      : null;
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
 
   useEffect(() => {
@@ -122,6 +134,7 @@ export default function Builder() {
   const windowsSection = useRef<HTMLElement>(null);
   const previewCard = useRef<HTMLDivElement>(null);
   const hydrated = useRef(false);
+  const customDecalInputRef = useRef<HTMLInputElement>(null);
 
   /* -------------------------------------------------- restore a saved build */
   useEffect(() => {
@@ -160,6 +173,7 @@ export default function Builder() {
   }, [properties, pricing]);
   const artwork = useArtworkReady(build);
   const window0Decal = decalById(build.circleDecal?.id);
+  const hasCustomDecal = build.circleDecal?.id === 'custom' && !!build.customDecalUrl;
   const activeFilter = byId(FILTERS, build.windows[activeWindow])!;
   const activeIsDecal = activeWindow === 0 && !!build.circleDecal;
   const watchLabel = 'Your Casio Royale: ' + Object.values(properties).join(', ');
@@ -224,7 +238,18 @@ export default function Builder() {
     if (id !== 'none' && !decal) return;
     const windows = [...build.windows];
     windows[0] = 'none';
-    update({ windows, circleDecal: decal ? { id: decal.id, finish: decal.finishes[0] } : null });
+    update({ windows, circleDecal: decal ? { id: decal.id, finish: decal.finishes[0] } : null, customDecalUrl: null });
+  };
+
+  const handleCustomDecalUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    const dataUrl = await readFileAsDataUrl(file);
+    const windows = [...build.windows];
+    windows[0] = 'none';
+    const finish = build.circleDecal?.finish ?? 'opaque';
+    update({ windows, circleDecal: { id: 'custom', finish }, customDecalUrl: dataUrl });
   };
 
   const setDecalFinish = (finish: DecalFinish) => {
@@ -274,7 +299,9 @@ export default function Builder() {
 
   const copyBuild = async () => {
     const url = new URL(window.location.href);
-    url.hash = new URLSearchParams({ build: JSON.stringify(build) }).toString();
+    // Exclude customDecalUrl — data URLs are too large for a shareable link.
+    const { customDecalUrl: _omit, ...shareable } = build;
+    url.hash = new URLSearchParams({ build: JSON.stringify(shareable) }).toString();
     try {
       await navigator.clipboard.writeText(url.href);
       showToast('Build link copied.');
@@ -450,7 +477,15 @@ export default function Builder() {
                     <span>
                       {index + 1} · {window.name}
                     </span>
-                    {decal ? (
+                    {index === 0 && hasCustomDecal ? (
+                      <img
+                        className="window-filter-dot window-decal-dot"
+                        src={build.customDecalUrl!}
+                        width={14}
+                        height={14}
+                        alt=""
+                      />
+                    ) : decal ? (
                       <Art
                         className="window-filter-dot window-decal-dot"
                         src={decalImage(decal.image, decal.ext)}
@@ -509,8 +544,39 @@ export default function Builder() {
                       <span>{decal.name}</span>
                     </button>
                   ))}
+                  <button
+                    type="button"
+                    className="decal-option"
+                    role="radio"
+                    aria-checked={build.circleDecal?.id === 'custom'}
+                    tabIndex={build.circleDecal?.id === 'custom' ? 0 : -1}
+                    aria-label="Upload your own image"
+                    onClick={() => customDecalInputRef.current?.click()}
+                  >
+                    <span className="decal-disc decal-upload">
+                      {build.customDecalUrl ? (
+                        <img
+                          src={build.customDecalUrl}
+                          width={52}
+                          height={52}
+                          alt=""
+                          style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }}
+                        />
+                      ) : (
+                        <span className="decal-upload-icon" aria-hidden>+</span>
+                      )}
+                    </span>
+                    <span>Custom</span>
+                  </button>
+                  <input
+                    ref={customDecalInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handleCustomDecalUpload}
+                  />
                 </div>
-                {window0Decal && window0Decal.finishes.length > 1 && (
+                {(hasCustomDecal || (window0Decal && window0Decal.finishes.length > 1)) && (
                   <div className="decal-finish">
                     <span>Decal finish</span>
                     <div role="radiogroup" aria-label="Decal finish" className="decal-finish-options">

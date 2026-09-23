@@ -175,9 +175,9 @@ export default function WatchPreview({
       </g>
 
       {/* Circle decal: transparent film multiplies over the LCD, opaque covers it. */}
-      {decal && (
+      {(decal || (build.circleDecal?.id === 'custom' && build.customDecalUrl)) && (
         <image
-          href={decalImage(decal.image, decal.ext)}
+          href={build.circleDecal?.id === 'custom' ? build.customDecalUrl! : decalImage(decal!.image, decal!.ext)}
           x={DECAL_CENTER.x - DECAL_SIZE / 2}
           y={DECAL_CENTER.y - DECAL_SIZE / 2}
           width={DECAL_SIZE}

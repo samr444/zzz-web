@@ -207,6 +207,10 @@ export interface CircleDecal {
 }
 
 export function normalizeCircleDecal(input: Partial<CircleDecal> | null | undefined): CircleDecal | null {
+  if (input?.id === 'custom') {
+    const finish = (input?.finish === 'opaque' || input?.finish === 'transparent') ? input.finish : 'opaque';
+    return { id: 'custom', finish };
+  }
   const decal = decalById(input?.id);
   if (!decal) return null;
   const finish = input?.finish;
@@ -216,6 +220,9 @@ export function normalizeCircleDecal(input: Partial<CircleDecal> | null | undefi
 export function circleDecalName(input: Partial<CircleDecal> | null | undefined): string {
   const value = normalizeCircleDecal(input);
   if (!value) return 'None';
+  if (value.id === 'custom') {
+    return 'Custom Image · ' + (DECAL_FINISHES.find((f) => f.id === value.finish)?.name ?? 'Opaque');
+  }
   const decal = decalById(value.id)!;
   return decal.name + (decal.finishes.length > 1 ? ' · ' + DECAL_FINISHES.find((f) => f.id === value.finish)!.name : '');
 }
@@ -272,6 +279,8 @@ export interface Build {
   gradientLayout: GradientLayout;
   circleDecal: CircleDecal | null;
   textRemovals: string[];
+  /** Data URL for a user-uploaded custom decal. Only set when circleDecal.id === 'custom'. */
+  customDecalUrl?: string | null;
 }
 
 // Starts on the black watch: the one stock pairing where nothing is an upgrade,
@@ -283,6 +292,7 @@ export const DEFAULT_BUILD: Build = {
   gradientLayout: 'separate',
   circleDecal: null,
   textRemovals: [],
+  customDecalUrl: null,
 };
 
 export const byId = <T extends { id: string }>(items: T[], id?: string | null) =>
@@ -290,7 +300,9 @@ export const byId = <T extends { id: string }>(items: T[], id?: string | null) =
 
 export function normalizeBuild(input: Partial<Build> = {}): Build {
   const caseId = byId(CASES, input.case)?.id ?? DEFAULT_BUILD.case;
-  const circleDecal = normalizeCircleDecal(input.circleDecal);
+  const rawCircleDecal = normalizeCircleDecal(input.circleDecal);
+  // Custom decal requires a URL — discard it if none was supplied (e.g. a shared link).
+  const circleDecal = (rawCircleDecal?.id === 'custom' && !input.customDecalUrl) ? null : rawCircleDecal;
   const windows = WINDOWS.map((_, i) =>
     i === 0 && circleDecal ? 'none' : byId(FILTERS, input.windows?.[i])?.id ?? 'none'
   );
@@ -308,6 +320,7 @@ export function normalizeBuild(input: Partial<Build> = {}): Build {
     gradientLayout: continuous ? 'continuous' : 'separate',
     circleDecal,
     textRemovals: normalizeTextRemovals(input.textRemovals),
+    customDecalUrl: circleDecal?.id === 'custom' ? (input.customDecalUrl ?? null) : null,
   };
 }
 

@@ -677,6 +677,19 @@ body {
 .zzz-royale-builder .decal-none {
   background: repeating-linear-gradient(45deg, #fff 0 4px, #dcdce2 4px 6px);
 }
+.zzz-royale-builder .decal-upload {
+  border-style: dashed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f4f7;
+}
+.zzz-royale-builder .decal-upload-icon {
+  font-size: 22px;
+  line-height: 1;
+  color: #a09cb0;
+  pointer-events: none;
+}
 .zzz-royale-builder .decal-option:hover {
   border-color: var(--selection-hover);
 }
