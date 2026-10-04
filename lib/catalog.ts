@@ -285,6 +285,10 @@ export interface Build {
   windowImages?: (string | null)[];
   /** Finish for each window custom image. Index 0 unused. */
   windowImageFinishes?: (DecalFinish | null)[];
+  /** How the image fills its window: 'fill' (crop to fill) or 'fit' (letterbox). Index 0 unused. */
+  windowImageFit?: ('fill' | 'fit' | null)[];
+  /** Scale multiplier for each window image (0.5–2.0, default 1). Index 0 unused. */
+  windowImageScale?: (number | null)[];
 }
 
 // Starts on the black watch: the one stock pairing where nothing is an upgrade,
@@ -299,6 +303,8 @@ export const DEFAULT_BUILD: Build = {
   customDecalUrl: null,
   windowImages: [null, null, null, null],
   windowImageFinishes: [null, null, null, null],
+  windowImageFit: [null, null, null, null],
+  windowImageScale: [null, null, null, null],
 };
 
 export const byId = <T extends { id: string }>(items: T[], id?: string | null) =>
@@ -324,6 +330,19 @@ export function normalizeBuild(input: Partial<Build> = {}): Build {
     return f === 'opaque' || f === 'transparent' ? f : 'opaque';
   });
 
+  const windowImageFit: ('fill' | 'fit' | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0 || !windowImages[i]) return null;
+    const f = input.windowImageFit?.[i];
+    return f === 'fill' || f === 'fit' ? f : null;
+  });
+
+  const windowImageScale: (number | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0 || !windowImages[i]) return null;
+    const s = input.windowImageScale?.[i];
+    if (typeof s !== 'number') return null;
+    return Math.round(Math.min(2.0, Math.max(0.5, s)) * 100) / 100;
+  });
+
   const windows = WINDOWS.map((_, i) => {
     if (i === 0 && circleDecal) return 'none';
     if (i > 0 && windowImages[i]) return 'none';
@@ -346,6 +365,8 @@ export function normalizeBuild(input: Partial<Build> = {}): Build {
     customDecalUrl: circleDecal?.id === 'custom' ? (input.customDecalUrl ?? null) : null,
     windowImages,
     windowImageFinishes,
+    windowImageFit,
+    windowImageScale,
   };
 }
 

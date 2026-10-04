@@ -724,6 +724,33 @@ body {
   color: var(--selection);
 }
 
+/* ---------------------------------------------------------- image scale */
+
+.zzz-royale-builder .window-scale-row {
+  align-items: center;
+}
+.zzz-royale-builder .window-scale-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.zzz-royale-builder .window-scale-slider {
+  flex: 1;
+  min-width: 80px;
+  accent-color: var(--selection);
+  cursor: pointer;
+  height: 4px;
+}
+.zzz-royale-builder .window-scale-value {
+  font-size: 13px;
+  color: var(--ink);
+  min-width: 36px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------------------------------------------------------- services */
 
 .zzz-royale-builder .service-heading-actions {

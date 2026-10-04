@@ -204,20 +204,28 @@ export default function WatchPreview({
         if (!imageUrl) return null;
         const finish = build.windowImageFinishes?.[index] ?? 'opaque';
         const isTransparent = finish === 'transparent';
+        const fit = build.windowImageFit?.[index] ?? 'fill';
+        const scale = build.windowImageScale?.[index] ?? 1;
         const [x, y, w, h] = window.bounds;
+        const cx = x + w / 2;
+        const cy = y + h / 2;
+        const transform = scale !== 1
+          ? `translate(${cx} ${cy}) scale(${scale}) translate(${-cx} ${-cy})`
+          : undefined;
         return (
-          <image
-            key={window.id}
-            href={imageUrl}
-            x={x}
-            y={y}
-            width={w}
-            height={h}
-            preserveAspectRatio="xMidYMid slice"
-            clipPath={`url(#${uid}-winclip-${index})`}
-            opacity={isTransparent ? TRANSPARENT_DECAL_OPACITY : 1}
-            style={isTransparent ? { mixBlendMode: 'multiply' } : undefined}
-          />
+          <g key={window.id} clipPath={`url(#${uid}-winclip-${index})`}>
+            <image
+              href={imageUrl}
+              x={x}
+              y={y}
+              width={w}
+              height={h}
+              preserveAspectRatio={fit === 'fit' ? 'xMidYMid meet' : 'xMidYMid slice'}
+              transform={transform}
+              opacity={isTransparent ? TRANSPARENT_DECAL_OPACITY : 1}
+              style={isTransparent ? { mixBlendMode: 'multiply' } : undefined}
+            />
+          </g>
         );
       })}
 

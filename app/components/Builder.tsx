@@ -285,6 +285,18 @@ export default function Builder() {
     update({ windowImageFinishes });
   };
 
+  const setWindowImageFit = (index: number, fit: 'fill' | 'fit') => {
+    const windowImageFit = [...(build.windowImageFit ?? [null, null, null, null])];
+    windowImageFit[index] = fit;
+    update({ windowImageFit });
+  };
+
+  const setWindowImageScale = (index: number, scale: number) => {
+    const windowImageScale = [...(build.windowImageScale ?? [null, null, null, null])];
+    windowImageScale[index] = scale;
+    update({ windowImageScale });
+  };
+
   const setDecalFinish = (finish: DecalFinish) => {
     if (!build.circleDecal) return;
     update({ circleDecal: { ...build.circleDecal, finish } });
@@ -759,6 +771,59 @@ export default function Builder() {
                       )}
                     </div>
                   </div>
+                )}
+
+                {build.windowImages?.[activeWindow] && (
+                  <>
+                    <div className="decal-finish">
+                      <span>Image fit</span>
+                      <div role="radiogroup" aria-label="Image fit" className="decal-finish-options">
+                        {(['fill', 'fit'] as const).map((mode) => {
+                          const checked = (build.windowImageFit?.[activeWindow] ?? 'fill') === mode;
+                          return (
+                            <button
+                              key={mode}
+                              type="button"
+                              className="decal-finish-option"
+                              role="radio"
+                              aria-checked={checked}
+                              tabIndex={checked ? 0 : -1}
+                              onClick={() => setWindowImageFit(activeWindow, mode)}
+                            >
+                              {mode === 'fill' ? 'Fill' : 'Fit'}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="decal-finish window-scale-row">
+                      <span>Scale</span>
+                      <div className="window-scale-controls">
+                        <input
+                          type="range"
+                          className="window-scale-slider"
+                          min={0.5}
+                          max={2.0}
+                          step={0.05}
+                          value={build.windowImageScale?.[activeWindow] ?? 1}
+                          onChange={(e) => setWindowImageScale(activeWindow, parseFloat(e.target.value))}
+                          aria-label="Image scale"
+                        />
+                        <span className="window-scale-value">
+                          {((build.windowImageScale?.[activeWindow] ?? 1) * 100).toFixed(0)}%
+                        </span>
+                        <button
+                          type="button"
+                          className="text-button"
+                          onClick={() => setWindowImageScale(activeWindow, 1)}
+                          aria-label="Reset scale"
+                        >
+                          Reset
+                        </button>
+                      </div>
+                    </div>
+                  </>
                 )}
               </fieldset>
             )}
