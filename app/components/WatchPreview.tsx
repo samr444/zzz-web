@@ -180,22 +180,33 @@ export default function WatchPreview({
       </g>
 
       {/* Circle decal: transparent film multiplies over the LCD, opaque covers it. */}
-      {(decal || (build.circleDecal?.id === 'custom' && build.customDecalUrl)) && (
-        <image
-          href={build.circleDecal?.id === 'custom' ? build.customDecalUrl! : decalImage(decal!.image, decal!.ext)}
-          x={DECAL_CENTER.x - DECAL_SIZE / 2}
-          y={DECAL_CENTER.y - DECAL_SIZE / 2}
-          width={DECAL_SIZE}
-          height={DECAL_SIZE}
-          clipPath={`url(#${uid}-aperture)`}
-          opacity={build.circleDecal?.finish === 'transparent' ? TRANSPARENT_DECAL_OPACITY : 1}
-          style={
-            build.circleDecal?.finish === 'transparent'
-              ? { mixBlendMode: 'multiply' }
-              : undefined
-          }
-        />
-      )}
+      {(decal || (build.circleDecal?.id === 'custom' && build.customDecalUrl)) && (() => {
+        const isCustom = build.circleDecal?.id === 'custom';
+        const href = isCustom ? build.customDecalUrl! : decalImage(decal!.image, decal!.ext);
+        const isTransparent = build.circleDecal?.finish === 'transparent';
+        const bx = DECAL_CENTER.x - DECAL_SIZE / 2;
+        const by = DECAL_CENTER.y - DECAL_SIZE / 2;
+        const bw = DECAL_SIZE;
+        const bh = DECAL_SIZE;
+        const scaleX = isCustom ? (build.windowImageScaleX?.[0] ?? 1) : 1;
+        const scaleY = isCustom ? (build.windowImageScaleY?.[0] ?? 1) : 1;
+        const offsetX = isCustom ? (build.windowImageOffsetX?.[0] ?? 0) : 0;
+        const offsetY = isCustom ? (build.windowImageOffsetY?.[0] ?? 0) : 0;
+        const iw = bw * scaleX;
+        const ih = bh * scaleY;
+        const ix = bx - (iw - bw) / 2 + offsetX * bw;
+        const iy = by - (ih - bh) / 2 + offsetY * bh;
+        return (
+          <image
+            href={href}
+            x={ix} y={iy} width={iw} height={ih}
+            preserveAspectRatio="xMidYMid slice"
+            clipPath={`url(#${uid}-aperture)`}
+            opacity={isTransparent ? TRANSPARENT_DECAL_OPACITY : 1}
+            style={isTransparent ? { mixBlendMode: 'multiply' } : undefined}
+          />
+        );
+      })()}
 
       {/* Custom images for thin, map, and time windows. */}
       {WINDOWS.slice(1).map((window, idx) => {
@@ -205,27 +216,30 @@ export default function WatchPreview({
         const finish = build.windowImageFinishes?.[index] ?? 'opaque';
         const isTransparent = finish === 'transparent';
         const fit = build.windowImageFit?.[index] ?? 'fill';
-        const scale = build.windowImageScale?.[index] ?? 1;
-        const [x, y, w, h] = window.bounds;
-        const cx = x + w / 2;
-        const cy = y + h / 2;
-        const transform = scale !== 1
-          ? `translate(${cx} ${cy}) scale(${scale}) translate(${-cx} ${-cy})`
-          : undefined;
+        const scaleX = build.windowImageScaleX?.[index] ?? 1;
+        const scaleY = build.windowImageScaleY?.[index] ?? 1;
+        const offsetX = build.windowImageOffsetX?.[index] ?? 0;
+        const offsetY = build.windowImageOffsetY?.[index] ?? 0;
+        const [bx, by, bw, bh] = window.bounds;
+        // Scale around window centre then pan — no SVG transform, so clip-path
+        // and opacity composite correctly in all browsers.
+        const iw = bw * scaleX;
+        const ih = bh * scaleY;
+        const ix = bx - (iw - bw) / 2 + offsetX * bw;
+        const iy = by - (ih - bh) / 2 + offsetY * bh;
         return (
-          <g key={window.id} clipPath={`url(#${uid}-winclip-${index})`}>
-            <image
-              href={imageUrl}
-              x={x}
-              y={y}
-              width={w}
-              height={h}
-              preserveAspectRatio={fit === 'fit' ? 'xMidYMid meet' : 'xMidYMid slice'}
-              transform={transform}
-              opacity={isTransparent ? TRANSPARENT_DECAL_OPACITY : 1}
-              style={isTransparent ? { mixBlendMode: 'multiply' } : undefined}
-            />
-          </g>
+          <image
+            key={window.id}
+            href={imageUrl}
+            x={ix}
+            y={iy}
+            width={iw}
+            height={ih}
+            preserveAspectRatio={fit === 'fit' ? 'xMidYMid meet' : 'xMidYMid slice'}
+            clipPath={`url(#${uid}-winclip-${index})`}
+            opacity={isTransparent ? TRANSPARENT_DECAL_OPACITY : 1}
+            style={isTransparent ? { mixBlendMode: 'multiply' } : undefined}
+          />
         );
       })}
 

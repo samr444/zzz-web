@@ -287,8 +287,14 @@ export interface Build {
   windowImageFinishes?: (DecalFinish | null)[];
   /** How the image fills its window: 'fill' (crop to fill) or 'fit' (letterbox). Index 0 unused. */
   windowImageFit?: ('fill' | 'fit' | null)[];
-  /** Scale multiplier for each window image (0.5–2.0, default 1). Index 0 unused. */
-  windowImageScale?: (number | null)[];
+  /** Horizontal scale multiplier (0.25–3, default 1). Index 0 unused. */
+  windowImageScaleX?: (number | null)[];
+  /** Vertical scale multiplier (0.25–3, default 1). Index 0 unused. */
+  windowImageScaleY?: (number | null)[];
+  /** Horizontal pan as fraction of window width (-1 to 1, default 0). Index 0 unused. */
+  windowImageOffsetX?: (number | null)[];
+  /** Vertical pan as fraction of window height (-1 to 1, default 0). Index 0 unused. */
+  windowImageOffsetY?: (number | null)[];
 }
 
 // Starts on the black watch: the one stock pairing where nothing is an upgrade,
@@ -304,7 +310,10 @@ export const DEFAULT_BUILD: Build = {
   windowImages: [null, null, null, null],
   windowImageFinishes: [null, null, null, null],
   windowImageFit: [null, null, null, null],
-  windowImageScale: [null, null, null, null],
+  windowImageScaleX: [null, null, null, null],
+  windowImageScaleY: [null, null, null, null],
+  windowImageOffsetX: [null, null, null, null],
+  windowImageOffsetY: [null, null, null, null],
 };
 
 export const byId = <T extends { id: string }>(items: T[], id?: string | null) =>
@@ -336,11 +345,31 @@ export function normalizeBuild(input: Partial<Build> = {}): Build {
     return f === 'fill' || f === 'fit' ? f : null;
   });
 
-  const windowImageScale: (number | null)[] = WINDOWS.map((_, i) => {
-    if (i === 0 || !windowImages[i]) return null;
-    const s = input.windowImageScale?.[i];
-    if (typeof s !== 'number') return null;
-    return Math.round(Math.min(2.0, Math.max(0.5, s)) * 100) / 100;
+  const clampScale = (v: unknown) => {
+    if (typeof v !== 'number') return null;
+    return Math.round(Math.min(3, Math.max(0.25, v)) * 100) / 100;
+  };
+  const clampOffset = (v: unknown) => {
+    if (typeof v !== 'number') return null;
+    return Math.round(Math.min(1, Math.max(-1, v)) * 100) / 100;
+  };
+
+  const hasCircleCustom = circleDecal?.id === 'custom';
+  const windowImageScaleX: (number | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0) return hasCircleCustom ? clampScale(input.windowImageScaleX?.[0]) : null;
+    return !windowImages[i] ? null : clampScale(input.windowImageScaleX?.[i]);
+  });
+  const windowImageScaleY: (number | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0) return hasCircleCustom ? clampScale(input.windowImageScaleY?.[0]) : null;
+    return !windowImages[i] ? null : clampScale(input.windowImageScaleY?.[i]);
+  });
+  const windowImageOffsetX: (number | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0) return hasCircleCustom ? clampOffset(input.windowImageOffsetX?.[0]) : null;
+    return !windowImages[i] ? null : clampOffset(input.windowImageOffsetX?.[i]);
+  });
+  const windowImageOffsetY: (number | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0) return hasCircleCustom ? clampOffset(input.windowImageOffsetY?.[0]) : null;
+    return !windowImages[i] ? null : clampOffset(input.windowImageOffsetY?.[i]);
   });
 
   const windows = WINDOWS.map((_, i) => {
@@ -366,7 +395,10 @@ export function normalizeBuild(input: Partial<Build> = {}): Build {
     windowImages,
     windowImageFinishes,
     windowImageFit,
-    windowImageScale,
+    windowImageScaleX,
+    windowImageScaleY,
+    windowImageOffsetX,
+    windowImageOffsetY,
   };
 }
 
@@ -456,6 +488,14 @@ export function priceBuild(input: Partial<Build>): Pricing {
 
   if (build.circleDecal)
     upgrades.push({ id: 'circle-decal', name: 'Circle decal', price: DECAL_PRICE });
+
+  const windowImageCount = build.windowImages?.slice(1).filter(Boolean).length ?? 0;
+  if (windowImageCount > 0)
+    upgrades.push({
+      id: 'window-images',
+      name: windowImageCount === 1 ? 'Custom window image' : `Custom window image × ${windowImageCount}`,
+      price: DECAL_PRICE * windowImageCount,
+    });
 
   const windows = windowCharge(build);
   if (windows.price > 0)
