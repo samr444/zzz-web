@@ -48,7 +48,7 @@ export default async function BuildPage({
       <header className="nav">
         <div className="nav-inner">
           <Link href="/" className="nav-logo">
-            <img src="/logo/logo_lg.png" alt="ZzzCulture" />
+            <img src="/logo/logo_text.png" alt="ZzzCulture" />
           </Link>
           <nav className="nav-links">
             <Link className="nav-link-scroll" href="/#lineup">
@@ -57,7 +57,7 @@ export default async function BuildPage({
             <Link className="nav-link-scroll" href="/#about">
               About
             </Link>
-            <Link href="/builds/custom-royale">Customise in 3D Builder</Link>
+            <Link href="/builds/custom-royale">Customise in 2D Builder</Link>
           </nav>
         </div>
       </header>

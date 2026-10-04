@@ -621,7 +621,7 @@ function CasioViewer() {
             }}
           >
             <img
-              src="/logo/logo_lg.png"
+              src="/logo/logo_text.png"
               alt=""
               style={{
                 position: "absolute",
@@ -738,7 +738,7 @@ function CasioViewer() {
         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
           <BackHomeLink />
           <img
-            src="/logo/logo_sm.png"
+            src="/logo/logo_white.png"
             alt="zZZ Culture"
             style={{
               height: "40px",
@@ -876,7 +876,7 @@ function CasioViewer() {
         }}
       >
         <img
-          src="/logo/logo_lg.png"
+          src="/logo/logo_text.png"
           alt="zZZ Culture"
           style={{
             height: isMobile ? "30px" : "35px",

@@ -14,12 +14,12 @@ export default function CustomRoyalePage() {
       <header className="nav">
         <div className="nav-inner">
           <Link href="/" className="nav-logo">
-            <img src="/logo/logo_lg.png" alt="ZzzCulture" />
+            <img src="/logo/logo_text.png" alt="ZzzCulture" />
           </Link>
           <nav className="nav-links">
             <Link className="nav-link-scroll" href="/#lineup">Current Lineup</Link>
             <Link className="nav-link-scroll" href="/#about">About</Link>
-            <Link href="/try-out">Customize</Link>
+            {/* <Link href="/try-out">Customize</Link> */}
           </nav>
         </div>
       </header>

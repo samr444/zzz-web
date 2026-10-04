@@ -15,9 +15,9 @@ const ASPECT_VALUES: Record<PhotoAspectRatio, number> = {
   "16:9": 9 / 16,
 };
 
-// The full wordmark used in the page footer (logo_lg.png) — stamped as a
+// The full wordmark used in the page footer (logo_text.png) — stamped as a
 // watermark onto every saved photo so it stays branded once downloaded.
-const WATERMARK_SRC = "/logo/logo_lg.png";
+const WATERMARK_SRC = "/logo/logo_text.png";
 const WATERMARK_WIDTH_RATIO = 0.13;
 const WATERMARK_MARGIN_RATIO = 0.035;
 
