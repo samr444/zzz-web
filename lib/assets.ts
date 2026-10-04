@@ -22,5 +22,8 @@ export function decalImage(name: string, ext = 'webp'): string {
   return `/images/decals/${name}.${ext}`;
 }
 
+/** F-91W photograph — single watch image. */
+export const F91_WATCH_IMAGE = '/images/f91/f91_watch.jpg';
+
 /** No longer needed — all assets are local image files. */
 export const isTextAsset = (_url: string) => false;

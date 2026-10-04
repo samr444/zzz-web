@@ -4,7 +4,6 @@ import './royale-builder.css';
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import WatchPreview from './WatchPreview';
 import MiniWatch from './MiniWatch';
-import ZzzMark from './ZzzMark';
 import { LiquidMetalButton } from './LiquidMetalButton';
 import { LiquidGradientButton } from './LiquidGradientButton';
 import {
@@ -130,11 +129,14 @@ export default function Builder() {
   const [activeWindow, setActiveWindow] = useState(0);
   const [expanded, setExpanded] = useState({ removal: false });
   const [toast, setToast] = useState('');
+  const [previewOpaqueTime, setPreviewOpaqueTime] = useState(false);
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(true);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const windowsSection = useRef<HTMLElement>(null);
   const previewCard = useRef<HTMLDivElement>(null);
   const hydrated = useRef(false);
   const customDecalInputRef = useRef<HTMLInputElement>(null);
+  const windowImageInputRef = useRef<HTMLInputElement>(null);
 
   /* -------------------------------------------------- restore a saved build */
   useEffect(() => {
@@ -172,10 +174,18 @@ export default function Builder() {
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`;
   }, [properties, pricing]);
   const artwork = useArtworkReady(build);
+  // When the user previews the Time image at full opacity, pass a patched build to the SVG renderer.
+  const displayBuild = useMemo(() => {
+    if (!previewOpaqueTime || !build.windowImages?.[3]) return build;
+    const windowImageFinishes = [...(build.windowImageFinishes ?? [null, null, null, null])] as (DecalFinish | null)[];
+    windowImageFinishes[3] = 'opaque';
+    return { ...build, windowImageFinishes };
+  }, [build, previewOpaqueTime]);
   const window0Decal = decalById(build.circleDecal?.id);
   const hasCustomDecal = build.circleDecal?.id === 'custom' && !!build.customDecalUrl;
   const activeFilter = byId(FILTERS, build.windows[activeWindow])!;
   const activeIsDecal = activeWindow === 0 && !!build.circleDecal;
+  const activeIsWindowImage = activeWindow > 0 && !!build.windowImages?.[activeWindow];
   const watchLabel = 'Your Casio Royale: ' + Object.values(properties).join(', ');
 
   const update = useCallback((patch: Partial<Build>) => {
@@ -226,10 +236,13 @@ export default function Builder() {
   const selectFilter = (id: string) => {
     const windows = [...build.windows];
     windows[activeWindow] = id;
+    const windowImages = [...(build.windowImages ?? [null, null, null, null])];
+    windowImages[activeWindow] = null;
     update({
       windows,
       gradientLayout: 'separate',
       ...(activeWindow === 0 ? { circleDecal: null } : {}),
+      windowImages,
     });
   };
 
@@ -252,13 +265,69 @@ export default function Builder() {
     update({ windows, circleDecal: { id: 'custom', finish }, customDecalUrl: dataUrl });
   };
 
+  const handleWindowImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    const dataUrl = await readFileAsDataUrl(file);
+    const windows = [...build.windows];
+    windows[activeWindow] = 'none';
+    const windowImages = [...(build.windowImages ?? [null, null, null, null])];
+    windowImages[activeWindow] = dataUrl;
+    const windowImageFinishes = [...(build.windowImageFinishes ?? [null, null, null, null])];
+    if (!windowImageFinishes[activeWindow]) windowImageFinishes[activeWindow] = 'opaque';
+    update({ windows, windowImages, windowImageFinishes });
+  };
+
+  const setWindowImageFinish = (index: number, finish: DecalFinish) => {
+    const windowImageFinishes = [...(build.windowImageFinishes ?? [null, null, null, null])];
+    windowImageFinishes[index] = finish;
+    update({ windowImageFinishes });
+  };
+
+  const setWindowImageFit = (index: number, fit: 'fill' | 'fit') => {
+    const windowImageFit = [...(build.windowImageFit ?? [null, null, null, null])];
+    windowImageFit[index] = fit;
+    update({ windowImageFit });
+  };
+
+  const setWindowImageScaleX = (index: number, v: number) => {
+    const windowImageScaleX = [...(build.windowImageScaleX ?? [null, null, null, null])];
+    windowImageScaleX[index] = v;
+    update({ windowImageScaleX });
+  };
+  const setWindowImageScaleY = (index: number, v: number) => {
+    const windowImageScaleY = [...(build.windowImageScaleY ?? [null, null, null, null])];
+    windowImageScaleY[index] = v;
+    update({ windowImageScaleY });
+  };
+  const setWindowImageOffsetX = (index: number, v: number) => {
+    const windowImageOffsetX = [...(build.windowImageOffsetX ?? [null, null, null, null])];
+    windowImageOffsetX[index] = v;
+    update({ windowImageOffsetX });
+  };
+  const setWindowImageOffsetY = (index: number, v: number) => {
+    const windowImageOffsetY = [...(build.windowImageOffsetY ?? [null, null, null, null])];
+    windowImageOffsetY[index] = v;
+    update({ windowImageOffsetY });
+  };
+
+  const resetWindowImageTransform = (index: number) => {
+    update({
+      windowImageScaleX: Object.assign([...( build.windowImageScaleX ?? [null,null,null,null])], { [index]: null }),
+      windowImageScaleY: Object.assign([...( build.windowImageScaleY ?? [null,null,null,null])], { [index]: null }),
+      windowImageOffsetX: Object.assign([...(build.windowImageOffsetX ?? [null,null,null,null])], { [index]: null }),
+      windowImageOffsetY: Object.assign([...(build.windowImageOffsetY ?? [null,null,null,null])], { [index]: null }),
+    });
+  };
+
   const setDecalFinish = (finish: DecalFinish) => {
     if (!build.circleDecal) return;
     update({ circleDecal: { ...build.circleDecal, finish } });
   };
 
   const applyToAll = () => {
-    if (activeIsDecal) return;
+    if (activeIsDecal || activeIsWindowImage) return;
     if ((activeFilter.colors?.length ?? 0) > 1) {
       setBuild(extendGradient(build, activeFilter.id));
       showToast(
@@ -279,10 +348,16 @@ export default function Builder() {
   const clearWindow = () => {
     const windows = [...build.windows];
     windows[activeWindow] = 'none';
+    const windowImages = [...(build.windowImages ?? [null, null, null, null])];
+    windowImages[activeWindow] = null;
+    const windowImageFinishes = [...(build.windowImageFinishes ?? [null, null, null, null])];
+    windowImageFinishes[activeWindow] = null;
     update({
       windows,
       gradientLayout: 'separate',
       ...(activeWindow === 0 ? { circleDecal: null } : {}),
+      windowImages,
+      windowImageFinishes,
     });
   };
 
@@ -299,8 +374,8 @@ export default function Builder() {
 
   const shareBuild = async () => {
     const url = new URL(window.location.href);
-    // Exclude customDecalUrl — data URLs are too large for a shareable link.
-    const { customDecalUrl: _omit, ...shareable } = build;
+    // Exclude data URLs and their associated state — too large / meaningless without the images.
+    const { customDecalUrl: _omit, windowImages: _omit2, windowImageFinishes: _omit3, ...shareable } = build;
     url.hash = new URLSearchParams({ build: JSON.stringify(shareable) }).toString();
     if (navigator.share) {
       try {
@@ -361,14 +436,14 @@ export default function Builder() {
               <div className="watch-stage" aria-busy={artwork === 'loading'}>
                 <WatchPreview
                   className="watch-canvas"
-                  build={build}
+                  build={displayBuild}
                   activeWindow={activeWindow}
                   onSelectWindow={(index) => selectWindow(index, { fromPreview: true })}
                   interactive
                   label={watchLabel}
                 />
                 <span className="preview-logo" aria-hidden>
-                  <ZzzMark className="preview-logo-mark" />
+                  <img src="/logo/logo_white.png" className="preview-logo-mark" alt="" />
                 </span>
                 {artwork !== 'ready' && (
                   <div className="image-loading">
@@ -405,7 +480,21 @@ export default function Builder() {
         </div>
 
         {/* ------------------------------------------------ controls */}
-        <div className="controls-column">
+        <div className="controls-column" data-mobile-open={mobileSheetOpen ? 'true' : 'false'}>
+          <button
+            type="button"
+            className="mobile-sheet-toggle"
+            onClick={() => setMobileSheetOpen(v => !v)}
+            aria-expanded={mobileSheetOpen}
+            aria-label="Toggle customization panel"
+          >
+            <span className="mobile-sheet-drag-bar" aria-hidden />
+            <span>Customize</span>
+            <svg viewBox="0 0 10 6" className={`mobile-sheet-chevron${mobileSheetOpen ? '' : ' flipped'}`} aria-hidden fill="currentColor">
+              <path d="M0 0l5 6 5-6z" />
+            </svg>
+          </button>
+          <div className="controls-scroll-body">
           <div className="intro">
             <p>
               Choose the watch, its window colours and the finishing services. Every Royale is a
@@ -500,6 +589,14 @@ export default function Builder() {
                         src={decalImage(decal.image, decal.ext)}
                         size={14}
                       />
+                    ) : build.windowImages?.[index] ? (
+                      <img
+                        className="window-filter-dot window-decal-dot"
+                        src={build.windowImages[index]!}
+                        width={14}
+                        height={14}
+                        alt=""
+                      />
                     ) : (
                       <i className="window-filter-dot" style={{ background: filterBackground(filter) }} />
                     )}
@@ -513,9 +610,11 @@ export default function Builder() {
               <span className="current-filter">
                 {activeIsDecal
                   ? circleDecalName(build.circleDecal)
-                  : activeFilter.id === 'none'
-                    ? 'No filter'
-                    : activeFilter.name}
+                  : activeIsWindowImage
+                    ? 'Custom image'
+                    : activeFilter.id === 'none'
+                      ? 'No filter'
+                      : activeFilter.name}
               </span>
             </p>
 
@@ -564,18 +663,26 @@ export default function Builder() {
                   >
                     <span className="decal-disc decal-upload">
                       {build.customDecalUrl ? (
-                        <img
-                          src={build.customDecalUrl}
-                          width={52}
-                          height={52}
-                          alt=""
-                          style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }}
-                        />
+                        <>
+                          <img
+                            src={build.customDecalUrl}
+                            width={52}
+                            height={52}
+                            alt=""
+                            style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }}
+                          />
+                          <span className="decal-upload-overlay" aria-hidden>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                              <circle cx="12" cy="13" r="4"/>
+                            </svg>
+                          </span>
+                        </>
                       ) : (
                         <span className="decal-upload-icon" aria-hidden>+</span>
                       )}
                     </span>
-                    <span>Custom</span>
+                    <span>{build.customDecalUrl ? 'Change' : 'Custom'}</span>
                   </button>
                   <input
                     ref={customDecalInputRef}
@@ -605,6 +712,221 @@ export default function Builder() {
                     </div>
                   </div>
                 )}
+
+                {hasCustomDecal && (
+                  <div className="window-texture-settings">
+                    <div className="texture-settings-header">
+                      <span className="eyebrow">TEXTURE SETTINGS</span>
+                      <button
+                        type="button"
+                        className="text-button"
+                        onClick={() => resetWindowImageTransform(0)}
+                      >
+                        Reset all
+                      </button>
+                    </div>
+
+                    {([
+                      { label: 'Scale X',  value: build.windowImageScaleX?.[0]  ?? 1, min: 0.25, max: 3, step: 0.01, fmt: (v: number) => v.toFixed(2), set: (v: number) => setWindowImageScaleX(0, v)  },
+                      { label: 'Scale Y',  value: build.windowImageScaleY?.[0]  ?? 1, min: 0.25, max: 3, step: 0.01, fmt: (v: number) => v.toFixed(2), set: (v: number) => setWindowImageScaleY(0, v)  },
+                      { label: 'Offset X', value: build.windowImageOffsetX?.[0] ?? 0, min: -1,   max: 1, step: 0.01, fmt: (v: number) => v.toFixed(2), set: (v: number) => setWindowImageOffsetX(0, v) },
+                      { label: 'Offset Y', value: build.windowImageOffsetY?.[0] ?? 0, min: -1,   max: 1, step: 0.01, fmt: (v: number) => v.toFixed(2), set: (v: number) => setWindowImageOffsetY(0, v) },
+                    ] as const).map(({ label, value, min, max, step, fmt, set }) => (
+                      <div key={label} className="decal-finish window-scale-row">
+                        <span>{label}</span>
+                        <div className="window-scale-controls">
+                          <input
+                            type="range"
+                            className="window-scale-slider"
+                            min={min}
+                            max={max}
+                            step={step}
+                            value={value}
+                            onChange={(e) => set(parseFloat(e.target.value))}
+                            aria-label={label}
+                          />
+                          <span className="window-scale-value">{fmt(value)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </fieldset>
+            )}
+
+            {activeWindow > 0 && (
+              <fieldset className="decal-fieldset">
+                <legend>
+                  CUSTOM IMAGE <span>{money(DECAL_PRICE)}</span>
+                </legend>
+                <div className="decal-options" role="radiogroup" aria-label="Custom window image">
+                  <button
+                    type="button"
+                    className="decal-option"
+                    role="radio"
+                    aria-checked={!build.windowImages?.[activeWindow]}
+                    tabIndex={!build.windowImages?.[activeWindow] ? 0 : -1}
+                    aria-label={build.windowImages?.[activeWindow] ? 'Remove image' : 'No image'}
+                    onClick={() => {
+                      const windowImages = [...(build.windowImages ?? [null, null, null, null])];
+                      windowImages[activeWindow] = null;
+                      const windowImageFinishes = [...(build.windowImageFinishes ?? [null, null, null, null])];
+                      windowImageFinishes[activeWindow] = null;
+                      if (activeWindow === 3) setPreviewOpaqueTime(false);
+                      update({ windowImages, windowImageFinishes });
+                    }}
+                  >
+                    <span className="decal-disc decal-none" aria-hidden />
+                    <span>{build.windowImages?.[activeWindow] ? 'Remove' : 'None'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="decal-option"
+                    role="radio"
+                    aria-checked={!!build.windowImages?.[activeWindow]}
+                    tabIndex={!!build.windowImages?.[activeWindow] ? 0 : -1}
+                    aria-label={build.windowImages?.[activeWindow] ? 'Change image' : 'Upload your own image'}
+                    onClick={() => windowImageInputRef.current?.click()}
+                  >
+                    <span className="decal-disc decal-upload">
+                      {build.windowImages?.[activeWindow] ? (
+                        <>
+                          <img
+                            src={build.windowImages[activeWindow]!}
+                            width={52}
+                            height={52}
+                            alt=""
+                            style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }}
+                          />
+                          <span className="decal-upload-overlay" aria-hidden>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                              <circle cx="12" cy="13" r="4"/>
+                            </svg>
+                          </span>
+                        </>
+                      ) : (
+                        <span className="decal-upload-icon" aria-hidden>+</span>
+                      )}
+                    </span>
+                    <span>{build.windowImages?.[activeWindow] ? 'Change' : 'Custom'}</span>
+                  </button>
+                  <input
+                    ref={windowImageInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handleWindowImageUpload}
+                  />
+                </div>
+                {build.windowImages?.[activeWindow] && (
+                  <div className="decal-finish">
+                    <span>Decal finish</span>
+                    <div role="radiogroup" aria-label="Image finish" className="decal-finish-options">
+                      {(activeWindow === 3
+                        ? DECAL_FINISHES.filter((f) => f.id === 'transparent')
+                        : DECAL_FINISHES
+                      ).map((finish) => (
+                        <button
+                          key={finish.id}
+                          type="button"
+                          className="decal-finish-option"
+                          role="radio"
+                          aria-checked={(activeWindow === 3 ? 'transparent' : (build.windowImageFinishes?.[activeWindow] ?? 'opaque')) === finish.id}
+                          tabIndex={0}
+                          onClick={() => activeWindow !== 3 && setWindowImageFinish(activeWindow, finish.id)}
+                        >
+                          {finish.name}
+                        </button>
+                      ))}
+                      {activeWindow === 3 && (
+                        <>
+                          <button
+                            type="button"
+                            className="decal-finish-option"
+                            role="radio"
+                            aria-checked={previewOpaqueTime}
+                            tabIndex={previewOpaqueTime ? 0 : -1}
+                            onClick={() => setPreviewOpaqueTime(true)}
+                          >
+                            On
+                          </button>
+                          <button
+                            type="button"
+                            className="decal-finish-option"
+                            role="radio"
+                            aria-checked={!previewOpaqueTime}
+                            tabIndex={!previewOpaqueTime ? 0 : -1}
+                            onClick={() => setPreviewOpaqueTime(false)}
+                          >
+                            Off
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {build.windowImages?.[activeWindow] && (
+                  <div className="window-texture-settings">
+                    <div className="texture-settings-header">
+                      <span className="eyebrow">TEXTURE SETTINGS</span>
+                      <button
+                        type="button"
+                        className="text-button"
+                        onClick={() => resetWindowImageTransform(activeWindow)}
+                      >
+                        Reset all
+                      </button>
+                    </div>
+
+                    <div className="decal-finish">
+                      <span>Image fit</span>
+                      <div role="radiogroup" aria-label="Image fit" className="decal-finish-options">
+                        {(['fill', 'fit'] as const).map((mode) => {
+                          const checked = (build.windowImageFit?.[activeWindow] ?? 'fill') === mode;
+                          return (
+                            <button
+                              key={mode}
+                              type="button"
+                              className="decal-finish-option"
+                              role="radio"
+                              aria-checked={checked}
+                              tabIndex={checked ? 0 : -1}
+                              onClick={() => setWindowImageFit(activeWindow, mode)}
+                            >
+                              {mode === 'fill' ? 'Fill' : 'Fit'}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {([
+                      { label: 'Scale X',  value: build.windowImageScaleX?.[activeWindow]  ?? 1,   min: 0.25, max: 3,  step: 0.01, fmt: (v: number) => v.toFixed(2), set: (v: number) => setWindowImageScaleX(activeWindow, v)  },
+                      { label: 'Scale Y',  value: build.windowImageScaleY?.[activeWindow]  ?? 1,   min: 0.25, max: 3,  step: 0.01, fmt: (v: number) => v.toFixed(2), set: (v: number) => setWindowImageScaleY(activeWindow, v)  },
+                      { label: 'Offset X', value: build.windowImageOffsetX?.[activeWindow] ?? 0,   min: -1,   max: 1,  step: 0.01, fmt: (v: number) => v.toFixed(2), set: (v: number) => setWindowImageOffsetX(activeWindow, v) },
+                      { label: 'Offset Y', value: build.windowImageOffsetY?.[activeWindow] ?? 0,   min: -1,   max: 1,  step: 0.01, fmt: (v: number) => v.toFixed(2), set: (v: number) => setWindowImageOffsetY(activeWindow, v) },
+                    ] as const).map(({ label, value, min, max, step, fmt, set }) => (
+                      <div key={label} className="decal-finish window-scale-row">
+                        <span>{label}</span>
+                        <div className="window-scale-controls">
+                          <input
+                            type="range"
+                            className="window-scale-slider"
+                            min={min}
+                            max={max}
+                            step={step}
+                            value={value}
+                            onChange={(e) => set(parseFloat(e.target.value))}
+                            aria-label={label}
+                          />
+                          <span className="window-scale-value">{fmt(value)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </fieldset>
             )}
 
@@ -612,7 +934,7 @@ export default function Builder() {
               <legend>FILTER COLORS</legend>
               <div className="color-options" role="radiogroup" aria-label="Solid filter colors">
                 {FILTERS.filter((filter) => !filter.short).map((filter) => {
-                  const checked = !activeIsDecal && build.windows[activeWindow] === filter.id;
+                  const checked = !activeIsDecal && !activeIsWindowImage && build.windows[activeWindow] === filter.id;
                   return (
                     <button
                       key={filter.id}
@@ -637,7 +959,7 @@ export default function Builder() {
               <legend>GRADIENT FILTERS</legend>
               <div className="gradient-options" role="radiogroup" aria-label="Gradient filters">
                 {FILTERS.filter((filter) => filter.short).map((filter) => {
-                  const checked = !activeIsDecal && build.windows[activeWindow] === filter.id;
+                  const checked = !activeIsDecal && !activeIsWindowImage && build.windows[activeWindow] === filter.id;
                   return (
                     <button
                       key={filter.id}
@@ -661,7 +983,7 @@ export default function Builder() {
             </fieldset>
 
             <div className="window-actions">
-              {!activeIsDecal && (
+              {!activeIsDecal && !activeIsWindowImage && (
                 <button
                   type="button"
                   className="outline-button"
@@ -783,6 +1105,7 @@ export default function Builder() {
               </p>
             </div>
           </section>
+          </div>{/* controls-scroll-body */}
         </div>
       </div>
 

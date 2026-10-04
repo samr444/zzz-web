@@ -281,6 +281,20 @@ export interface Build {
   textRemovals: string[];
   /** Data URL for a user-uploaded custom decal. Only set when circleDecal.id === 'custom'. */
   customDecalUrl?: string | null;
+  /** Data URLs for user-uploaded custom images, one per window (index matches WINDOWS). Index 0 unused — circle uses circleDecal instead. */
+  windowImages?: (string | null)[];
+  /** Finish for each window custom image. Index 0 unused. */
+  windowImageFinishes?: (DecalFinish | null)[];
+  /** How the image fills its window: 'fill' (crop to fill) or 'fit' (letterbox). Index 0 unused. */
+  windowImageFit?: ('fill' | 'fit' | null)[];
+  /** Horizontal scale multiplier (0.25–3, default 1). Index 0 unused. */
+  windowImageScaleX?: (number | null)[];
+  /** Vertical scale multiplier (0.25–3, default 1). Index 0 unused. */
+  windowImageScaleY?: (number | null)[];
+  /** Horizontal pan as fraction of window width (-1 to 1, default 0). Index 0 unused. */
+  windowImageOffsetX?: (number | null)[];
+  /** Vertical pan as fraction of window height (-1 to 1, default 0). Index 0 unused. */
+  windowImageOffsetY?: (number | null)[];
 }
 
 // Starts on the black watch: the one stock pairing where nothing is an upgrade,
@@ -293,6 +307,13 @@ export const DEFAULT_BUILD: Build = {
   circleDecal: null,
   textRemovals: [],
   customDecalUrl: null,
+  windowImages: [null, null, null, null],
+  windowImageFinishes: [null, null, null, null],
+  windowImageFit: [null, null, null, null],
+  windowImageScaleX: [null, null, null, null],
+  windowImageScaleY: [null, null, null, null],
+  windowImageOffsetX: [null, null, null, null],
+  windowImageOffsetY: [null, null, null, null],
 };
 
 export const byId = <T extends { id: string }>(items: T[], id?: string | null) =>
@@ -303,9 +324,59 @@ export function normalizeBuild(input: Partial<Build> = {}): Build {
   const rawCircleDecal = normalizeCircleDecal(input.circleDecal);
   // Custom decal requires a URL — discard it if none was supplied (e.g. a shared link).
   const circleDecal = (rawCircleDecal?.id === 'custom' && !input.customDecalUrl) ? null : rawCircleDecal;
-  const windows = WINDOWS.map((_, i) =>
-    i === 0 && circleDecal ? 'none' : byId(FILTERS, input.windows?.[i])?.id ?? 'none'
-  );
+
+  // windowImages / windowImageFinishes: index 0 unused (circle uses circleDecal); validate 1–3.
+  const windowImages: (string | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0) return null;
+    const url = input.windowImages?.[i];
+    return typeof url === 'string' ? url : null;
+  });
+  const windowImageFinishes: (DecalFinish | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0) return null;
+    if (!windowImages[i]) return null;
+    if (i === 3) return 'transparent'; // Time window is always transparent
+    const f = input.windowImageFinishes?.[i];
+    return f === 'opaque' || f === 'transparent' ? f : 'opaque';
+  });
+
+  const windowImageFit: ('fill' | 'fit' | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0 || !windowImages[i]) return null;
+    const f = input.windowImageFit?.[i];
+    return f === 'fill' || f === 'fit' ? f : null;
+  });
+
+  const clampScale = (v: unknown) => {
+    if (typeof v !== 'number') return null;
+    return Math.round(Math.min(3, Math.max(0.25, v)) * 100) / 100;
+  };
+  const clampOffset = (v: unknown) => {
+    if (typeof v !== 'number') return null;
+    return Math.round(Math.min(1, Math.max(-1, v)) * 100) / 100;
+  };
+
+  const hasCircleCustom = circleDecal?.id === 'custom';
+  const windowImageScaleX: (number | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0) return hasCircleCustom ? clampScale(input.windowImageScaleX?.[0]) : null;
+    return !windowImages[i] ? null : clampScale(input.windowImageScaleX?.[i]);
+  });
+  const windowImageScaleY: (number | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0) return hasCircleCustom ? clampScale(input.windowImageScaleY?.[0]) : null;
+    return !windowImages[i] ? null : clampScale(input.windowImageScaleY?.[i]);
+  });
+  const windowImageOffsetX: (number | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0) return hasCircleCustom ? clampOffset(input.windowImageOffsetX?.[0]) : null;
+    return !windowImages[i] ? null : clampOffset(input.windowImageOffsetX?.[i]);
+  });
+  const windowImageOffsetY: (number | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0) return hasCircleCustom ? clampOffset(input.windowImageOffsetY?.[0]) : null;
+    return !windowImages[i] ? null : clampOffset(input.windowImageOffsetY?.[i]);
+  });
+
+  const windows = WINDOWS.map((_, i) => {
+    if (i === 0 && circleDecal) return 'none';
+    if (i > 0 && windowImages[i]) return 'none';
+    return byId(FILTERS, input.windows?.[i])?.id ?? 'none';
+  });
   const included = windows.slice(circleDecal ? 1 : 0);
   const first = byId(FILTERS, included[0]);
   const continuous =
@@ -321,6 +392,13 @@ export function normalizeBuild(input: Partial<Build> = {}): Build {
     circleDecal,
     textRemovals: normalizeTextRemovals(input.textRemovals),
     customDecalUrl: circleDecal?.id === 'custom' ? (input.customDecalUrl ?? null) : null,
+    windowImages,
+    windowImageFinishes,
+    windowImageFit,
+    windowImageScaleX,
+    windowImageScaleY,
+    windowImageOffsetX,
+    windowImageOffsetY,
   };
 }
 
@@ -411,6 +489,14 @@ export function priceBuild(input: Partial<Build>): Pricing {
   if (build.circleDecal)
     upgrades.push({ id: 'circle-decal', name: 'Circle decal', price: DECAL_PRICE });
 
+  const windowImageCount = build.windowImages?.slice(1).filter(Boolean).length ?? 0;
+  if (windowImageCount > 0)
+    upgrades.push({
+      id: 'window-images',
+      name: windowImageCount === 1 ? 'Custom window image' : `Custom window image × ${windowImageCount}`,
+      price: DECAL_PRICE * windowImageCount,
+    });
+
   const windows = windowCharge(build);
   if (windows.price > 0)
     upgrades.push({
@@ -445,7 +531,11 @@ export function buildProperties(input: Partial<Build>): Record<string, string> {
     ...Object.fromEntries(
       WINDOWS.map((w, i) => [
         `Window ${i + 1} · ${w.name}`,
-        i === 0 && b.circleDecal ? 'Decal · ' + circleDecalName(b.circleDecal) : byId(FILTERS, b.windows[i])!.name,
+        i === 0 && b.circleDecal
+          ? 'Decal · ' + circleDecalName(b.circleDecal)
+          : i > 0 && b.windowImages?.[i]
+            ? 'Custom image'
+            : byId(FILTERS, b.windows[i])!.name,
       ])
     ),
     ...(b.gradientLayout === 'continuous'

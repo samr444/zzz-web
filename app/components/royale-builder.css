@@ -113,10 +113,18 @@ body {
   grid-template-columns: minmax(0, 0.91fr) minmax(0, 1.09fr);
   gap: 64px;
   padding: 0 24px 56px;
+  align-items: start;
 }
 .zzz-royale-builder .preview-sticky {
   position: sticky;
-  top: 26px;
+  top: 96px; /* 80px nav + 16px breathing room */
+}
+.zzz-royale-builder .controls-column {
+  max-height: calc(100vh - 116px); /* 80px nav + 36px builder margin */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d8d4e0 transparent;
+  padding-right: 2px;
 }
 
 /* ---------------------------------------------------------- preview */
@@ -658,6 +666,7 @@ body {
   color: var(--ink);
 }
 .zzz-royale-builder .decal-disc {
+  position: relative;
   display: block;
   flex: 0 0 48px;
   width: 48px;
@@ -666,6 +675,31 @@ body {
   overflow: hidden;
   border: 1px solid #c9c5ce;
   box-shadow: inset 0 0 0 1px #ffffff80;
+}
+.zzz-royale-builder .decal-upload-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+.zzz-royale-builder .decal-upload-overlay svg {
+  width: 18px;
+  height: 18px;
+}
+.zzz-royale-builder .decal-option:hover .decal-upload-overlay,
+.zzz-royale-builder .decal-option:focus-visible .decal-upload-overlay {
+  opacity: 1;
+}
+@media (hover: none) {
+  .zzz-royale-builder .decal-upload-overlay {
+    opacity: 0.82;
+  }
 }
 .zzz-royale-builder .decal-disc img {
   display: block;
@@ -722,6 +756,49 @@ body {
   border-color: var(--selection);
   background: var(--selection-pale);
   color: var(--selection);
+}
+
+/* ---------------------------------------------------------- image scale */
+
+.zzz-royale-builder .window-texture-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid var(--rule);
+  padding-top: 14px;
+  margin-top: 4px;
+}
+.zzz-royale-builder .texture-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+
+.zzz-royale-builder .window-scale-row {
+  align-items: center;
+}
+.zzz-royale-builder .window-scale-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.zzz-royale-builder .window-scale-slider {
+  flex: 1;
+  min-width: 80px;
+  accent-color: var(--selection);
+  cursor: pointer;
+  height: 4px;
+}
+.zzz-royale-builder .window-scale-value {
+  font-size: 13px;
+  color: var(--ink);
+  min-width: 36px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---------------------------------------------------------- services */
@@ -948,7 +1025,10 @@ body {
     margin-top: 45px;
   }
   .zzz-royale-builder .preview-sticky {
-    top: 30px;
+    top: 96px;
+  }
+  .zzz-royale-builder .controls-column {
+    max-height: calc(100vh - 125px); /* 80px nav + 45px builder margin */
   }
 }
 
@@ -993,55 +1073,152 @@ body {
 }
 
 @media (max-width: 820px) {
+  /* ---------- full-viewport layout ---------- */
   .zzz-royale-builder .builder {
-    grid-template-columns: minmax(0, 1fr);
-    max-width: 650px;
-    gap: 30px;
-    row-gap: 10px;
-    padding: 0 20px 40px;
-    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - 80px);
+    max-width: 100%;
+    width: 100%;
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    align-items: stretch;
   }
+
+  /* Preview column fills the space above the sheet */
   .zzz-royale-builder .preview-column {
-    display: contents;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
   }
   .zzz-royale-builder .preview-sticky {
-    position: sticky;
-    top: 0;
-    z-index: 3;
-    order: 0;
-    background: #fff;
-    padding-bottom: 6px;
-    /* Reads as a layer, so controls scrolling under it don't look clipped. */
-    box-shadow: 0 11px 12px -10px rgba(28, 26, 32, 0.22);
-  }
-  .zzz-royale-builder .controls-column {
-    order: 1;
-  }
-  .zzz-royale-builder
-    :is(section, fieldset, button, label, input, .window-option) {
-    scroll-margin-top: calc(var(--sticky-preview, 0px) + 12px);
-  }
-  .zzz-royale-builder .watch-stage {
-    max-height: 38vh;
+    position: static;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     min-height: 0;
-    aspect-ratio: 1033 / 1300;
-    width: min(100%, calc(38vh * 0.795));
-    margin: 0 auto;
-  }
-  .zzz-royale-builder .build-summary {
-    display: none;
+    order: unset;
+    box-shadow: none;
+    background: transparent;
+    padding-bottom: 0;
   }
   .zzz-royale-builder .preview-card {
-    padding: 10px;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0;
+    background: transparent;
+    padding: 8px 16px 0;
   }
   .zzz-royale-builder .preview-topline {
+    flex-shrink: 0;
     padding-bottom: 8px;
+  }
+  .zzz-royale-builder .preview-caption .preview-instruction {
+    display: none;
+  }
+  .zzz-royale-builder .watch-stage {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    width: 100%;
+    aspect-ratio: unset;
+    overflow: hidden;
+  }
+  .zzz-royale-builder .watch-canvas {
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
   }
   .zzz-royale-builder .preview-logo {
     width: 40px;
     height: 40px;
     top: 10px;
-    left: 10px;
+    left: 16px;
+  }
+  .zzz-royale-builder .build-summary {
+    display: none;
+  }
+
+  /* ---------- bottom sheet ---------- */
+  .zzz-royale-builder .controls-column {
+    flex-shrink: 0;
+    order: unset;
+    max-height: none;
+    overflow: hidden;
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 24px rgba(28, 26, 32, 0.13);
+    display: flex;
+    flex-direction: column;
+    height: 62%;
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .zzz-royale-builder .controls-column[data-mobile-open="false"] {
+    height: 52px;
+  }
+
+  .zzz-royale-builder .mobile-sheet-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-shrink: 0;
+    height: 52px;
+    width: 100%;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: 0.3px;
+    color: #68616f;
+    padding: 14px 20px 0;
+    position: relative;
+  }
+  .zzz-royale-builder .mobile-sheet-drag-bar {
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: #d8d4e0;
+    border-radius: 2px;
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .zzz-royale-builder .mobile-sheet-chevron {
+    width: 10px;
+    height: 6px;
+    transition: transform 0.25s ease;
+  }
+  .zzz-royale-builder .mobile-sheet-chevron.flipped {
+    transform: rotate(180deg);
+  }
+
+  .zzz-royale-builder .controls-scroll-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0 20px 40px;
+    scrollbar-width: none;
+  }
+  .zzz-royale-builder .controls-scroll-body::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ---------- component-level tweaks ---------- */
+  .zzz-royale-builder
+    :is(section, fieldset, button, label, input, .window-option) {
+    scroll-margin-top: 8px;
   }
   .zzz-royale-builder .controls-column .case-section {
     border-top: 0;
@@ -1052,9 +1229,6 @@ body {
   }
   .zzz-royale-builder .intro p {
     max-width: 430px;
-  }
-  .zzz-royale-builder .preview-caption .preview-instruction {
-    display: none;
   }
   .zzz-royale-builder .choice-name {
     font-size: 14px;
@@ -1086,13 +1260,11 @@ body {
 }
 
 @media (max-width: 480px) {
-  .zzz-royale-builder .builder {
-    padding: 0 14px 140px;
-    margin-top: 17px;
-    gap: 25px;
+  .zzz-royale-builder .controls-scroll-body {
+    padding: 0 14px 40px;
   }
   .zzz-royale-builder .preview-card {
-    border-radius: 20px;
+    padding: 8px 12px 0;
   }
   .zzz-royale-builder .intro h1 {
     font-size: 30px;
@@ -1186,5 +1358,18 @@ body {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------- F-91W overrides */
+
+.zzz-royale-builder.zzz-f91-builder .watch-stage {
+  aspect-ratio: 1280 / 1531;
+}
+
+@media (max-width: 820px) {
+  .zzz-royale-builder.zzz-f91-builder .watch-stage {
+    aspect-ratio: 1280 / 1531;
+    width: min(100%, calc(38vh * 0.836));
   }
 }
