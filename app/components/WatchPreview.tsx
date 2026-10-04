@@ -74,6 +74,11 @@ export default function WatchPreview({
         <clipPath id={`${uid}-aperture`}>
           <path d={WINDOWS[0].path} />
         </clipPath>
+        {WINDOWS.slice(1).map((window, idx) => (
+          <clipPath key={idx} id={`${uid}-winclip-${idx + 1}`}>
+            <path d={window.path} />
+          </clipPath>
+        ))}
         {/* Matches the renderer's gamma 2.15 luminance roll-off for black leather. */}
         <filter id={`${uid}-darken`} colorInterpolationFilters="sRGB">
           <feComponentTransfer>
@@ -191,6 +196,30 @@ export default function WatchPreview({
           }
         />
       )}
+
+      {/* Custom images for thin, map, and time windows. */}
+      {WINDOWS.slice(1).map((window, idx) => {
+        const index = idx + 1;
+        const imageUrl = build.windowImages?.[index];
+        if (!imageUrl) return null;
+        const finish = build.windowImageFinishes?.[index] ?? 'opaque';
+        const isTransparent = finish === 'transparent';
+        const [x, y, w, h] = window.bounds;
+        return (
+          <image
+            key={window.id}
+            href={imageUrl}
+            x={x}
+            y={y}
+            width={w}
+            height={h}
+            preserveAspectRatio="xMidYMid slice"
+            clipPath={`url(#${uid}-winclip-${index})`}
+            opacity={isTransparent ? TRANSPARENT_DECAL_OPACITY : 1}
+            style={isTransparent ? { mixBlendMode: 'multiply' } : undefined}
+          />
+        );
+      })}
 
       {interactive && onSelectWindow && (
         <g className="watch-hotspots">

@@ -60,6 +60,11 @@ export default function MiniWatch({
         <clipPath id={`${uid}-aperture`}>
           <path d={WINDOWS[0].path} />
         </clipPath>
+        {WINDOWS.slice(1).map((window, idx) => (
+          <clipPath key={idx} id={`${uid}-winclip-${idx + 1}`}>
+            <path d={window.path} />
+          </clipPath>
+        ))}
       </defs>
 
       <path
@@ -100,6 +105,26 @@ export default function MiniWatch({
           opacity={windowIndex === 0 ? 1 : 0.55}
         />
       )}
+
+      {WINDOWS.slice(1).map((window, idx) => {
+        const index = idx + 1;
+        const imageUrl = build.windowImages?.[index];
+        if (!imageUrl) return null;
+        const [x, y, w, h] = window.bounds;
+        return (
+          <image
+            key={window.id}
+            href={imageUrl}
+            x={x}
+            y={y}
+            width={w}
+            height={h}
+            preserveAspectRatio="xMidYMid slice"
+            clipPath={`url(#${uid}-winclip-${index})`}
+            opacity={index === windowIndex ? 1 : 0.55}
+          />
+        );
+      })}
     </svg>
   );
 }

@@ -281,6 +281,10 @@ export interface Build {
   textRemovals: string[];
   /** Data URL for a user-uploaded custom decal. Only set when circleDecal.id === 'custom'. */
   customDecalUrl?: string | null;
+  /** Data URLs for user-uploaded custom images, one per window (index matches WINDOWS). Index 0 unused — circle uses circleDecal instead. */
+  windowImages?: (string | null)[];
+  /** Finish for each window custom image. Index 0 unused. */
+  windowImageFinishes?: (DecalFinish | null)[];
 }
 
 // Starts on the black watch: the one stock pairing where nothing is an upgrade,
@@ -293,6 +297,8 @@ export const DEFAULT_BUILD: Build = {
   circleDecal: null,
   textRemovals: [],
   customDecalUrl: null,
+  windowImages: [null, null, null, null],
+  windowImageFinishes: [null, null, null, null],
 };
 
 export const byId = <T extends { id: string }>(items: T[], id?: string | null) =>
@@ -303,9 +309,26 @@ export function normalizeBuild(input: Partial<Build> = {}): Build {
   const rawCircleDecal = normalizeCircleDecal(input.circleDecal);
   // Custom decal requires a URL — discard it if none was supplied (e.g. a shared link).
   const circleDecal = (rawCircleDecal?.id === 'custom' && !input.customDecalUrl) ? null : rawCircleDecal;
-  const windows = WINDOWS.map((_, i) =>
-    i === 0 && circleDecal ? 'none' : byId(FILTERS, input.windows?.[i])?.id ?? 'none'
-  );
+
+  // windowImages / windowImageFinishes: index 0 unused (circle uses circleDecal); validate 1–3.
+  const windowImages: (string | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0) return null;
+    const url = input.windowImages?.[i];
+    return typeof url === 'string' ? url : null;
+  });
+  const windowImageFinishes: (DecalFinish | null)[] = WINDOWS.map((_, i) => {
+    if (i === 0) return null;
+    if (!windowImages[i]) return null;
+    if (i === 3) return 'transparent'; // Time window is always transparent
+    const f = input.windowImageFinishes?.[i];
+    return f === 'opaque' || f === 'transparent' ? f : 'opaque';
+  });
+
+  const windows = WINDOWS.map((_, i) => {
+    if (i === 0 && circleDecal) return 'none';
+    if (i > 0 && windowImages[i]) return 'none';
+    return byId(FILTERS, input.windows?.[i])?.id ?? 'none';
+  });
   const included = windows.slice(circleDecal ? 1 : 0);
   const first = byId(FILTERS, included[0]);
   const continuous =
@@ -321,6 +344,8 @@ export function normalizeBuild(input: Partial<Build> = {}): Build {
     circleDecal,
     textRemovals: normalizeTextRemovals(input.textRemovals),
     customDecalUrl: circleDecal?.id === 'custom' ? (input.customDecalUrl ?? null) : null,
+    windowImages,
+    windowImageFinishes,
   };
 }
 
@@ -445,7 +470,11 @@ export function buildProperties(input: Partial<Build>): Record<string, string> {
     ...Object.fromEntries(
       WINDOWS.map((w, i) => [
         `Window ${i + 1} · ${w.name}`,
-        i === 0 && b.circleDecal ? 'Decal · ' + circleDecalName(b.circleDecal) : byId(FILTERS, b.windows[i])!.name,
+        i === 0 && b.circleDecal
+          ? 'Decal · ' + circleDecalName(b.circleDecal)
+          : i > 0 && b.windowImages?.[i]
+            ? 'Custom image'
+            : byId(FILTERS, b.windows[i])!.name,
       ])
     ),
     ...(b.gradientLayout === 'continuous'

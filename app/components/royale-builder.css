@@ -1188,3 +1188,16 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------------------------------------------------------- F-91W overrides */
+
+.zzz-royale-builder.zzz-f91-builder .watch-stage {
+  aspect-ratio: 1280 / 1531;
+}
+
+@media (max-width: 820px) {
+  .zzz-royale-builder.zzz-f91-builder .watch-stage {
+    aspect-ratio: 1280 / 1531;
+    width: min(100%, calc(38vh * 0.836));
+  }
+}
