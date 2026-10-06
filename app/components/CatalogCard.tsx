@@ -67,7 +67,7 @@ export function CatalogCard({ build }: CatalogCardProps) {
         ) : isCustomF91 ? (
           <div>
             <p className="catalog-card-name">Customise Casio F-91W</p>
-            <span className="catalog-card-tag">Casio F-91W</span>
+            <span className="catalog-card-tag">Casio F-91W · <span style={{ color: '#16a34a' }}>Free Shipping</span></span>
           </div>
         ) : (
           <div>
@@ -85,30 +85,12 @@ export function CatalogCard({ build }: CatalogCardProps) {
             )}
           </div>
         )}
-        {!isCustomBuilder && !comingSoon && (
+        {!isCustomRoyale && !comingSoon && (
           <p className="catalog-card-price">{build.formattedPrice}</p>
         )}
       </div>
     </div>
   );
-
-  if (isCustomBuilder) {
-    return (
-      <div className={`ec-wrap${isCustomF91 ? " ec-wrap--f91" : ""}`}>
-        <div className="ec-inner" aria-hidden>
-          <div className="ec-border-outer">
-            <div className="ec-card-face" />
-          </div>
-          <div className="ec-glow-1" />
-          <div className="ec-glow-2" />
-        </div>
-        <div className="ec-overlay-1" aria-hidden />
-        <div className="ec-overlay-2" aria-hidden />
-        <div className="ec-bg-glow" aria-hidden />
-        {card}
-      </div>
-    );
-  }
 
   return card;
 }
