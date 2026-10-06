@@ -400,6 +400,36 @@ a {
   transition: width 0.25s ease, height 0.25s ease;
 }
 
+/* ── F91W builder card accent (blue-violet instead of amber) ── */
+.ec-wrap--f91 {
+  background:
+    linear-gradient(-30deg, rgba(91, 78, 255, 0.35), transparent, rgba(91, 78, 255, 0.35)),
+    linear-gradient(to bottom, #ffffff, #ffffff);
+}
+.ec-wrap--f91 .ec-border-outer {
+  border-color: rgba(91, 78, 255, 0.45);
+}
+.ec-wrap--f91 .ec-card-face {
+  border-color: #5b4eff;
+}
+.ec-wrap--f91 .ec-glow-1 {
+  border-color: rgba(91, 78, 255, 0.6);
+}
+.ec-wrap--f91 .ec-glow-2 {
+  border-color: #5b4eff;
+}
+.ec-wrap--f91 .ec-bg-glow {
+  background: linear-gradient(-30deg, #5b4eff, transparent, #5b4eff);
+}
+.ec-wrap--f91 .crf-corner,
+.ec-wrap--f91 .crf-label {
+  border-color: #5b4eff;
+  color: #5b4eff;
+}
+.custom-f91-card {
+  overflow: visible !important;
+}
+
 /* ── card image slider ───────────────────────────────────── */
 .card-slider {
   position: relative;
