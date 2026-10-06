@@ -1368,8 +1368,30 @@ body {
 }
 
 @media (max-width: 820px) {
+  /* F91 uses a simple scrollable layout — no bottom sheet drawer */
+  .zzz-royale-builder.zzz-f91-builder .builder {
+    height: auto;
+    overflow: visible;
+  }
+  .zzz-royale-builder.zzz-f91-builder .preview-column {
+    flex: none;
+  }
+  .zzz-royale-builder.zzz-f91-builder .preview-sticky {
+    flex: none;
+  }
   .zzz-royale-builder.zzz-f91-builder .watch-stage {
+    flex: none;
     aspect-ratio: 988 / 1531;
-    width: min(100%, calc(38vh * 0.6453));
+    width: min(70%, calc(40vh * 0.6453));
+    height: auto;
+    margin: 0 auto;
+  }
+  .zzz-royale-builder.zzz-f91-builder .controls-column {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 16px;
   }
 }
