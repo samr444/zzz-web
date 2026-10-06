@@ -306,7 +306,7 @@ export default function F91Builder() {
                 <span className="step">1</span> Display colour
               </h2>
               <span className="included-label">
-                {money(500)} per build
+                Included
               </span>
             </div>
 
@@ -410,7 +410,7 @@ export default function F91Builder() {
                 <span className="step">2</span> Custom image
               </h2>
               <span className="included-label">
-                {money(500)} · replaces display colour
+                Included · replaces display colour
               </span>
             </div>
 
@@ -531,6 +531,7 @@ export default function F91Builder() {
                 <span> {pricing.currency}</span>
               </strong>
             </div>
+            <p className="free-shipping-note">Free Shipping</p>
             <p>All builds include a brand new genuine Casio F-91W base watch.</p>
             <div className="order-cta">
               <a

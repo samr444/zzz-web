@@ -917,6 +917,13 @@ body {
   margin: 7px 0 0;
 }
 
+.zzz-royale-builder .free-shipping-note {
+  font-size: 12px;
+  font-weight: 600;
+  color: #16a34a !important;
+  margin: 8px 0 0;
+}
+
 /* ---------------------------------------------------------- coming soon */
 
 .zzz-royale-builder .coming-soon-section {

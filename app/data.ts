@@ -177,8 +177,8 @@ const FACEPLATE_PRICES: Record<string, number> = {
 /** Custom Royale Build: full window customization fee on the AE-1200. */
 const CUSTOM_ROYALE_BUILD_PRICE = 2000;
 
-/** Custom F-91W Build: base mod fee (display colour or decal). */
-const CUSTOM_F91_BUILD_PRICE = 500;
+/** Custom F-91W Build: starting price mod component (base 1295 + 1704 = 2999 total). */
+const CUSTOM_F91_BUILD_PRICE = 1704;
 
 export function modPrice(mod: Mod, base: BaseWatch): number {
   switch (mod.kind) {
@@ -242,6 +242,7 @@ export const LINEUP: readonly Build[] = [
     ],
     status: "made-to-order",
     order: 0.5,
+    hideBreakdown: true,
   },
   {
     slug: "ae1200-minnal-murali",

@@ -67,9 +67,9 @@ export const F91_DISPLAY = {
 /* Pricing                                                              */
 /* ------------------------------------------------------------------ */
 
-export const F91_BASE_PRICE = 1295;
-export const F91_DISPLAY_FILTER_PRICE = 500;
-export const F91_DECAL_PRICE = 500;
+export const F91_BASE_PRICE = 2999;
+export const F91_DISPLAY_FILTER_PRICE = 0;
+export const F91_DECAL_PRICE = 0;
 
 /* ------------------------------------------------------------------ */
 /* Build                                                                */
@@ -117,7 +117,7 @@ export function priceF91Build(input: Partial<F91Build>): F91Pricing {
   const build = normalizeF91Build(input);
   const upgrades: { id: string; name: string; price: number }[] = [];
 
-  if (byId(FILTERS, build.displayFilter)?.colors) {
+  if (F91_DISPLAY_FILTER_PRICE > 0 && byId(FILTERS, build.displayFilter)?.colors) {
     upgrades.push({
       id: 'display-filter',
       name: 'Display colour',
@@ -125,7 +125,7 @@ export function priceF91Build(input: Partial<F91Build>): F91Pricing {
     });
   }
 
-  if (build.decal) {
+  if (F91_DECAL_PRICE > 0 && build.decal) {
     upgrades.push({
       id: 'decal',
       name: 'Display decal · ' + circleDecalName(build.decal as Parameters<typeof circleDecalName>[0]),
