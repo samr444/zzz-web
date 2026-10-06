@@ -137,7 +137,8 @@ export type Mod =
   | { kind: "custom-print"; imageCount: number; transparent: boolean; label: string; priceOverride?: number }
   | { kind: "strap"; name: string; color: string; label: string }
   | { kind: "custom-faceplate"; name: string; label: string }
-  | { kind: "custom-royale"; label: string };
+  | { kind: "custom-royale"; label: string }
+  | { kind: "custom-f91"; label: string };
 
 /** Colour filter price by number of colours. */
 const COLOR_FILTER_TIERS: Record<number, number> = {
@@ -176,6 +177,9 @@ const FACEPLATE_PRICES: Record<string, number> = {
 /** Custom Royale Build: full window customization fee on the AE-1200. */
 const CUSTOM_ROYALE_BUILD_PRICE = 2000;
 
+/** Custom F-91W Build: base mod fee (display colour or decal). */
+const CUSTOM_F91_BUILD_PRICE = 500;
+
 export function modPrice(mod: Mod, base: BaseWatch): number {
   switch (mod.kind) {
     case "color-filter":
@@ -191,6 +195,8 @@ export function modPrice(mod: Mod, base: BaseWatch): number {
       return FACEPLATE_PRICES[mod.name] ?? 0;
     case "custom-royale":
       return CUSTOM_ROYALE_BUILD_PRICE;
+    case "custom-f91":
+      return CUSTOM_F91_BUILD_PRICE;
   }
 }
 
@@ -222,6 +228,20 @@ export const LINEUP: readonly Build[] = [
     images: ["/custom_card/black.png", "/custom_card/silver.png", "/custom_card/gold.png"],
     status: "made-to-order",
     order: 0,
+  },
+  {
+    slug: "custom-f91",
+    baseWatchId: "f91-black",
+    mods: [{ kind: "custom-f91", label: "Custom F-91W Build" }],
+    images: [
+      "/custom_card/f91/f91_gradient.png",
+      "/custom_card/f91/f91_blue.png",
+      "/custom_card/f91/f91_purple.png",
+      "/custom_card/f91/f91_batman.png",
+      "/custom_card/f91/f91_spiderman.png",
+    ],
+    status: "made-to-order",
+    order: 0.5,
   },
   {
     slug: "ae1200-minnal-murali",

@@ -40,6 +40,10 @@ import {
 export const F91_PHOTO_WIDTH = 1280;
 export const F91_PHOTO_HEIGHT = 1531;
 
+/* Horizontal crop of the photograph — the watch content spans cols 153–1141. */
+export const F91_VIEWPORT_X = 153;
+export const F91_VIEWPORT_WIDTH = 988;
+
 /**
  * The LCD display window.
  * Real-life size: 2 cm wide × 1 cm tall.
@@ -49,12 +53,14 @@ export const F91_DISPLAY = {
   id: 'display',
   name: 'Display',
   description: 'Main LCD display',
+  // Bounds measured from pixel transitions in f91_watch.jpg (1280×1531).
+  // LCD glass: x 389–901, y 644–906. Top at 644 clears the ALARM CHRONOGRAPH strip.
   path:
-    'M 300 640 L 976 640 Q 988 640 988 652 ' +
-    'L 988 846 Q 988 858 976 858 ' +
-    'L 300 858 Q 288 858 288 846 ' +
-    'L 288 652 Q 288 640 300 640 Z',
-  bounds: [288, 640, 700, 218] as [number, number, number, number],
+    'M 401 644 L 889 644 Q 901 644 901 656 ' +
+    'L 901 894 Q 901 906 889 906 ' +
+    'L 401 906 Q 389 906 389 894 ' +
+    'L 389 656 Q 389 644 401 644 Z',
+  bounds: [389, 644, 512, 262] as [number, number, number, number],
 } as const;
 
 /* ------------------------------------------------------------------ */

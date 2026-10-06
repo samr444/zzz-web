@@ -14,11 +14,7 @@ import { LiquidMetalButton } from './LiquidMetalButton';
 import { LiquidGradientButton } from './LiquidGradientButton';
 import {
   FILTERS,
-  DECALS,
-  DECAL_FINISHES,
   byId,
-  decalById,
-  circleDecalName,
   filterBackground,
   money,
   type DecalFinish,
@@ -28,7 +24,6 @@ import {
   priceF91Build,
   f91BuildProperties,
 } from '@/lib/f91-catalog';
-import { decalImage } from '@/lib/assets';
 import { WHATSAPP_NUMBER, INSTAGRAM_URL } from '../data';
 
 const STORAGE_KEY = 'zzz-culture:f91-builder';
@@ -54,31 +49,6 @@ function handleRadioKeys(event: React.KeyboardEvent<HTMLElement>) {
   event.preventDefault();
   target.click();
   target.focus();
-}
-
-function Art({
-  src,
-  size,
-  className,
-}: {
-  src: string;
-  size: number;
-  className?: string;
-}) {
-  const [failed, setFailed] = useState(false);
-  if (failed) return null;
-  return (
-    <img
-      className={className}
-      src={src}
-      width={size}
-      height={size}
-      alt=""
-      loading="lazy"
-      decoding="async"
-      onError={() => setFailed(true)}
-    />
-  );
 }
 
 const readFileAsDataUrl = (file: File): Promise<string> =>
@@ -156,10 +126,8 @@ export default function F91Builder() {
   }, [properties, pricing]);
 
   const activeFilter = byId(FILTERS, build.displayFilter)!;
-  const hasDecal = !!build.decal;
   const hasCustomDecal =
     build.decal?.id === 'custom' && !!build.customDecalUrl;
-  const currentDecal = decalById(build.decal?.id);
   const watchLabel =
     'Your Casio F-91W: ' + Object.values(properties).join(', ');
 
@@ -182,27 +150,20 @@ export default function F91Builder() {
     update({ displayFilter: 'none' });
   };
 
-  const selectDecal = (id: string | 'none') => {
-    if (id === 'none') {
-      update({ decal: null, customDecalUrl: null });
-      return;
-    }
-    const decal = decalById(id);
-    if (!decal) return;
-    update({ decal: { id: decal.id, finish: decal.finishes[0] }, displayFilter: 'none' });
-  };
-
-  const handleCustomDecalUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleCustomImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     e.target.value = '';
     const dataUrl = await readFileAsDataUrl(file);
-    const finish = build.decal?.finish ?? 'opaque';
     update({
-      decal: { id: 'custom', finish },
+      decal: { id: 'custom', finish: 'transparent' },
       customDecalUrl: dataUrl,
       displayFilter: 'none',
     });
+  };
+
+  const clearCustomImage = () => {
+    update({ decal: null, customDecalUrl: null });
   };
 
   const setDecalFinish = (finish: DecalFinish) => {
@@ -244,18 +205,9 @@ export default function F91Builder() {
   };
 
   const surpriseMe = () => {
-    const pick = <T,>(items: T[]) =>
-      items[Math.floor(Math.random() * items.length)];
     const colours = FILTERS.filter((f) => f.colors);
-    const useDecal = Math.random() < 0.35;
-    const decal = pick(DECALS);
-    setBuild(
-      normalizeF91Build(
-        useDecal
-          ? { decal: { id: decal.id, finish: decal.finishes[0] } }
-          : { displayFilter: pick(colours).id, decal: null }
-      )
-    );
+    const pick = colours[Math.floor(Math.random() * colours.length)];
+    setBuild(normalizeF91Build({ displayFilter: pick.id, decal: null }));
     showToast('Here is a random F-91W. Keep tweaking it.');
   };
 
@@ -275,8 +227,8 @@ export default function F91Builder() {
               <div className="preview-caption">
                 <span className="preview-instruction">Tap a colour to tint the display.</span>
                 <span className="active-caption">
-                  {hasDecal
-                    ? 'Decal · ' + circleDecalName(build.decal as Parameters<typeof circleDecalName>[0])
+                  {hasCustomDecal
+                    ? 'Custom image'
                     : activeFilter?.colors
                       ? activeFilter.name
                       : 'No filter'}
@@ -335,8 +287,8 @@ export default function F91Builder() {
         <div className="controls-column">
           <div className="intro">
             <p>
-              Choose a display colour or a decal for your F-91W. Every build is a
-              genuine Casio F-91W rebuilt by hand.
+              Choose a display colour or upload a custom image for your F-91W.
+              Every build is a genuine Casio F-91W rebuilt by hand.
             </p>
             <div className="build-actions">
               <LiquidGradientButton label="Surprise me" onClick={surpriseMe} />
@@ -361,8 +313,8 @@ export default function F91Builder() {
             <p className="window-description">
               <span>Tints the LCD with a transparent coloured film.</span>
               <span className="current-filter">
-                {hasDecal
-                  ? 'Decal active — colour disabled'
+                {hasCustomDecal
+                  ? 'Custom image active — colour disabled'
                   : activeFilter?.colors
                     ? activeFilter.name
                     : 'No filter'}
@@ -374,7 +326,7 @@ export default function F91Builder() {
               <div className="color-options" role="radiogroup" aria-label="Solid filter colours">
                 {FILTERS.filter((f) => !f.short).map((filter) => {
                   const checked =
-                    !hasDecal && build.displayFilter === filter.id;
+                    !hasCustomDecal && build.displayFilter === filter.id;
                   return (
                     <button
                       key={filter.id}
@@ -386,7 +338,7 @@ export default function F91Builder() {
                       data-value={filter.id}
                       aria-label={filter.name}
                       onClick={() => selectFilter(filter.id)}
-                      disabled={hasDecal}
+                      disabled={hasCustomDecal}
                     >
                       <span
                         className="color-disc"
@@ -408,7 +360,7 @@ export default function F91Builder() {
               >
                 {FILTERS.filter((f) => f.short).map((filter) => {
                   const checked =
-                    !hasDecal && build.displayFilter === filter.id;
+                    !hasCustomDecal && build.displayFilter === filter.id;
                   return (
                     <button
                       key={filter.id}
@@ -419,7 +371,7 @@ export default function F91Builder() {
                       tabIndex={checked ? 0 : -1}
                       aria-label={filter.name}
                       onClick={() => selectFilter(filter.id)}
-                      disabled={hasDecal}
+                      disabled={hasCustomDecal}
                     >
                       <span
                         className="color-disc"
@@ -435,7 +387,7 @@ export default function F91Builder() {
               </div>
             </fieldset>
 
-            {!hasDecal && build.displayFilter !== 'none' && (
+            {!hasCustomDecal && build.displayFilter !== 'none' && (
               <div className="window-actions">
                 <button
                   type="button"
@@ -448,14 +400,14 @@ export default function F91Builder() {
             )}
           </section>
 
-          {/* 2 · Decals */}
+          {/* 2 · Custom image */}
           <section
             className="option-section"
-            aria-labelledby="f91-decal-heading"
+            aria-labelledby="f91-image-heading"
           >
             <div className="section-heading">
-              <h2 id="f91-decal-heading">
-                <span className="step">2</span> Decal
+              <h2 id="f91-image-heading">
+                <span className="step">2</span> Custom image
               </h2>
               <span className="included-label">
                 {money(500)} · replaces display colour
@@ -464,86 +416,67 @@ export default function F91Builder() {
 
             <fieldset className="decal-fieldset">
               <legend>
-                DISPLAY DECAL
-                <span>Printed image fills the LCD window</span>
+                DISPLAY IMAGE
+                <span>Your image fills the LCD window</span>
               </legend>
-              <div
-                className="decal-options"
-                role="radiogroup"
-                aria-label="Display decal"
-              >
+
+              <div className="decal-options" role="radiogroup" aria-label="Custom image">
                 <button
                   type="button"
                   className="decal-option"
                   role="radio"
-                  aria-checked={!build.decal}
-                  tabIndex={!build.decal ? 0 : -1}
-                  onClick={() => selectDecal('none')}
+                  aria-checked={!hasCustomDecal}
+                  tabIndex={!hasCustomDecal ? 0 : -1}
+                  aria-label={hasCustomDecal ? 'Remove image' : 'No image'}
+                  onClick={clearCustomImage}
                 >
                   <span className="decal-disc decal-none" aria-hidden />
-                  <span>None</span>
+                  <span>{hasCustomDecal ? 'Remove' : 'None'}</span>
                 </button>
-                {DECALS.map((decal) => (
-                  <button
-                    key={decal.id}
-                    type="button"
-                    className="decal-option"
-                    role="radio"
-                    aria-checked={build.decal?.id === decal.id}
-                    tabIndex={build.decal?.id === decal.id ? 0 : -1}
-                    aria-label={`${decal.name} decal`}
-                    onClick={() => selectDecal(decal.id)}
-                  >
-                    <span className="decal-disc">
-                      <Art
-                        src={decalImage(decal.image, decal.ext)}
-                        size={52}
-                      />
-                    </span>
-                    <span>{decal.name}</span>
-                  </button>
-                ))}
+
                 <button
                   type="button"
                   className="decal-option"
                   role="radio"
-                  aria-checked={build.decal?.id === 'custom'}
-                  tabIndex={build.decal?.id === 'custom' ? 0 : -1}
-                  aria-label="Upload your own image"
+                  aria-checked={hasCustomDecal}
+                  tabIndex={hasCustomDecal ? 0 : -1}
+                  aria-label={hasCustomDecal ? 'Change image' : 'Upload your own image'}
                   onClick={() => customDecalInputRef.current?.click()}
                 >
                   <span className="decal-disc decal-upload">
                     {build.customDecalUrl ? (
-                      <img
-                        src={build.customDecalUrl}
-                        width={52}
-                        height={52}
-                        alt=""
-                        style={{
-                          borderRadius: '50%',
-                          objectFit: 'cover',
-                          display: 'block',
-                        }}
-                      />
+                      <>
+                        <img
+                          src={build.customDecalUrl}
+                          width={52}
+                          height={52}
+                          alt=""
+                          style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }}
+                        />
+                        <span className="decal-upload-overlay" aria-hidden>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                          </svg>
+                        </span>
+                      </>
                     ) : (
-                      <span className="decal-upload-icon" aria-hidden>
-                        +
-                      </span>
+                      <span className="decal-upload-icon" aria-hidden>+</span>
                     )}
                   </span>
-                  <span>Custom</span>
+                  <span>{hasCustomDecal ? 'Change' : 'Custom'}</span>
                 </button>
+
                 <input
                   ref={customDecalInputRef}
                   type="file"
                   accept="image/*"
                   style={{ display: 'none' }}
-                  onChange={handleCustomDecalUpload}
+                  onChange={handleCustomImageUpload}
                 />
               </div>
 
-              {(hasCustomDecal ||
-                (currentDecal && currentDecal.finishes.length > 1)) && (
+              {hasCustomDecal && (
                 <div className="decal-finish">
                   <span>Decal finish</span>
                   <div
@@ -551,21 +484,26 @@ export default function F91Builder() {
                     aria-label="Decal finish"
                     className="decal-finish-options"
                   >
-                    {DECAL_FINISHES.map((finish) => (
-                      <button
-                        key={finish.id}
-                        type="button"
-                        className="decal-finish-option"
-                        role="radio"
-                        aria-checked={build.decal?.finish === finish.id}
-                        tabIndex={
-                          build.decal?.finish === finish.id ? 0 : -1
-                        }
-                        onClick={() => setDecalFinish(finish.id)}
-                      >
-                        {finish.name}
-                      </button>
-                    ))}
+                    <button
+                      type="button"
+                      className="decal-finish-option"
+                      role="radio"
+                      aria-checked={build.decal?.finish === 'transparent'}
+                      tabIndex={build.decal?.finish === 'transparent' ? 0 : -1}
+                      onClick={() => setDecalFinish('transparent')}
+                    >
+                      On
+                    </button>
+                    <button
+                      type="button"
+                      className="decal-finish-option"
+                      role="radio"
+                      aria-checked={build.decal?.finish === 'opaque'}
+                      tabIndex={build.decal?.finish === 'opaque' ? 0 : -1}
+                      onClick={() => setDecalFinish('opaque')}
+                    >
+                      Off
+                    </button>
                   </div>
                 </div>
               )}

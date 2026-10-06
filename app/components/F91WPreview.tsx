@@ -5,6 +5,8 @@ import {
   F91_DISPLAY,
   F91_PHOTO_WIDTH,
   F91_PHOTO_HEIGHT,
+  F91_VIEWPORT_X,
+  F91_VIEWPORT_WIDTH,
   FILTERS,
   TRANSPARENT_DECAL_OPACITY,
   byId,
@@ -30,7 +32,7 @@ export default function F91WPreview({ build, className, label }: Props) {
   return (
     <svg
       className={className}
-      viewBox={`0 0 ${F91_PHOTO_WIDTH} ${F91_PHOTO_HEIGHT}`}
+      viewBox={`${F91_VIEWPORT_X} 0 ${F91_VIEWPORT_WIDTH} ${F91_PHOTO_HEIGHT}`}
       role="img"
       aria-label={label}
       style={{ isolation: 'isolate' }}

@@ -14,9 +14,11 @@ export function CatalogCard({ build }: CatalogCardProps) {
   const alt = `${build.title} — ${build.subtitle}`;
 
   const isCustomRoyale = build.slug === 'custom-royale';
+  const isCustomF91 = build.slug === 'custom-f91';
+  const isCustomBuilder = isCustomRoyale || isCustomF91;
 
   const imageBox = (
-    <div className={`catalog-card-image${soldOut ? " is-sold-out" : ""}${comingSoon ? " is-coming-soon" : ""}${isCustomRoyale ? " custom-royale-card" : ""}`}>
+    <div className={`catalog-card-image${soldOut ? " is-sold-out" : ""}${comingSoon ? " is-coming-soon" : ""}${isCustomRoyale ? " custom-royale-card" : ""}${isCustomF91 ? " custom-f91-card" : ""}`}>
       {build.images.length > 1 ? (
         <CardImageSlider images={build.images} alt={alt} soldOut={soldOut} />
       ) : (
@@ -33,6 +35,15 @@ export function CatalogCard({ build }: CatalogCardProps) {
           <span className="crf-corner crf-bl" />
           <span className="crf-corner crf-br" />
           <span className="crf-label">[ CUSTOMISE YOUR ROYALE ]</span>
+        </div>
+      )}
+      {isCustomF91 && (
+        <div className="crf" aria-hidden>
+          <span className="crf-corner crf-tl" />
+          <span className="crf-corner crf-tr" />
+          <span className="crf-corner crf-bl" />
+          <span className="crf-corner crf-br" />
+          <span className="crf-label">[ CUSTOMISE YOUR F-91W ]</span>
         </div>
       )}
     </div>
@@ -53,6 +64,11 @@ export function CatalogCard({ build }: CatalogCardProps) {
             <p className="catalog-card-name">Customise Casio AE1200</p>
             <span className="catalog-card-tag">Casio Royale</span>
           </div>
+        ) : isCustomF91 ? (
+          <div>
+            <p className="catalog-card-name">Customise Casio F-91W</p>
+            <span className="catalog-card-tag">Casio F-91W</span>
+          </div>
         ) : (
           <div>
             <p className="catalog-card-name">{build.title}</p>
@@ -69,16 +85,16 @@ export function CatalogCard({ build }: CatalogCardProps) {
             )}
           </div>
         )}
-        {!isCustomRoyale && !comingSoon && (
+        {!isCustomBuilder && !comingSoon && (
           <p className="catalog-card-price">{build.formattedPrice}</p>
         )}
       </div>
     </div>
   );
 
-  if (isCustomRoyale) {
+  if (isCustomBuilder) {
     return (
-      <div className="ec-wrap">
+      <div className={`ec-wrap${isCustomF91 ? " ec-wrap--f91" : ""}`}>
         <div className="ec-inner" aria-hidden>
           <div className="ec-border-outer">
             <div className="ec-card-face" />
