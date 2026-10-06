@@ -281,7 +281,7 @@ a {
 }
 
 .ec-border-outer {
-  border: 1.5px solid rgba(221, 132, 72, 0.45);
+  border: none;
   border-radius: 16px;
   padding-right: 3px;
   padding-bottom: 3px;
@@ -292,7 +292,7 @@ a {
   width: 100%;
   height: 100%;
   border-radius: 14px;
-  border: 2px solid #dd8448;
+  border: none;
   margin-top: -3px;
   margin-left: -3px;
   filter: url(#turbulent-displace);
@@ -301,7 +301,7 @@ a {
 .ec-glow-1 {
   position: absolute;
   inset: 0;
-  border: 2px solid rgba(221, 132, 72, 0.6);
+  border: none;
   border-radius: 16px;
   filter: blur(1px);
 }
@@ -309,7 +309,7 @@ a {
 .ec-glow-2 {
   position: absolute;
   inset: 0;
-  border: 2px solid #dd8448;
+  border: none;
   border-radius: 16px;
   filter: blur(5px);
 }
