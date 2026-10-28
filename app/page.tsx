@@ -34,14 +34,15 @@ export default function Home() {
           <div className="hero-image-frame">
             <div className="hero-watch-frame">
               <img src="/hero_image_cut.png" alt="ZzzCulture hand-modded Casio instrument panel" className="hero-watch-overlay" />
-              <video
+              <img src="/hero_image_cut_new.jpeg" alt="" className="hero-watch-fill" />
+              {/* <video
                 src="/hero_video/hero-colour-grid.webm"
                 autoPlay
                 loop
                 muted
                 playsInline
                 className="hero-watch-video"
-              />
+              /> */}
             </div>
           </div>
         </div>

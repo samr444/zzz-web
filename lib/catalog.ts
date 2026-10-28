@@ -15,6 +15,8 @@ export const WINDOW_COLOUR_PRICE = 500;
 export const ALL_WINDOWS_PRICE = 1_000;
 /** A circle decal, charged like a window colour. */
 export const DECAL_PRICE = 500;
+/** Custom image on the large Time window — charged at a premium. */
+export const TIME_WINDOW_IMAGE_PRICE = 1000;
 export const TEXT_REMOVAL_PRICE = 500;
 
 /* ------------------------------------------------------------------ */
@@ -489,13 +491,17 @@ export function priceBuild(input: Partial<Build>): Pricing {
   if (build.circleDecal)
     upgrades.push({ id: 'circle-decal', name: 'Circle decal', price: DECAL_PRICE });
 
-  const windowImageCount = build.windowImages?.slice(1).filter(Boolean).length ?? 0;
-  if (windowImageCount > 0)
+  const hasTimeWindowImage = !!build.windowImages?.[3];
+  const otherWindowImageCount = build.windowImages?.slice(1, 3).filter(Boolean).length ?? 0;
+  const windowImageCount = otherWindowImageCount + (hasTimeWindowImage ? 1 : 0);
+  if (windowImageCount > 0) {
+    const price = otherWindowImageCount * DECAL_PRICE + (hasTimeWindowImage ? TIME_WINDOW_IMAGE_PRICE : 0);
     upgrades.push({
       id: 'window-images',
       name: windowImageCount === 1 ? 'Custom window image' : `Custom window image × ${windowImageCount}`,
-      price: DECAL_PRICE * windowImageCount,
+      price,
     });
+  }
 
   const windows = windowCharge(build);
   if (windows.price > 0)

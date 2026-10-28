@@ -366,6 +366,33 @@ export const LINEUP: readonly Build[] = [
     status: "coming-soon",
     order: 14,
   },
+  {
+    slug: "ae1200-akatsuki",
+    baseWatchId: "ae1200whd-1av",
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Akatsuki", priceOverride: 3504 }],
+    images: ["/lineups/akatsuki_ae1200.png"],
+    status: "available",
+    order: 0.6,
+    hideBreakdown: true,
+  },
+  {
+    slug: "ae1200-bmw-leather",
+    baseWatchId: "ae1200whd-1av",
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "BMW · Leather Strap", priceOverride: 3204 }],
+    images: ["/lineups/bmw_ae1200_leather.png"],
+    status: "available",
+    order: 0.7,
+    hideBreakdown: true,
+  },
+  {
+    slug: "f91-doom-black",
+    baseWatchId: "f91-black",
+    mods: [{ kind: "custom-f91", label: "Doom" }],
+    images: ["/lineups/doom_f91_black.png"],
+    status: "available",
+    order: 0.8,
+    hideBreakdown: true,
+  },
 ];
 
 /* ------------------------------------------------------------------ */
