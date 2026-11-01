@@ -69,8 +69,8 @@ export const F91_DISPLAY = {
 /* ------------------------------------------------------------------ */
 
 export const F91_BASE_PRICE = 1295;
-export const F91_DISPLAY_FILTER_PRICE = 500;
-export const F91_DECAL_PRICE = 500;
+export const F91_DISPLAY_FILTER_PRICE = 1704;
+export const F91_DECAL_PRICE = 1704;
 
 /* ------------------------------------------------------------------ */
 /* Build                                                                */

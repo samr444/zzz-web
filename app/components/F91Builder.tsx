@@ -520,7 +520,6 @@ export default function F91Builder() {
               {pricing.upgrades.map((upgrade) => (
                 <div className="upgrade-price" key={upgrade.id}>
                   <span>{upgrade.name}</span>
-                  <span>+{money(upgrade.price)}</span>
                 </div>
               ))}
             </div>
