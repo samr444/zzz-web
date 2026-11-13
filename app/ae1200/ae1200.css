@@ -1,0 +1,624 @@
+/* AE-1200 Faceplate Customizer — light theme */
+
+.ae-page {
+  min-height: 100vh;
+  background: #f5f5f5;
+  color: #111;
+  font-family: 'Manrope', 'Inter', sans-serif;
+  padding-bottom: 4rem;
+}
+
+/* ---- Header ---- */
+
+.ae-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background: #fff;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.ae-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.ae-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: #f0f0f0;
+  color: #999;
+  padding: 0.2em 0.65em;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+/* ---- Layout ---- */
+
+.ae-designer {
+  display: flex;
+  gap: 0;
+  align-items: flex-start;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+@media (max-width: 900px) {
+  .ae-designer { flex-direction: column; }
+}
+
+/* ---- Stage ---- */
+
+.ae-stage-col {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ae-watch-stage {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  overflow: hidden;
+  line-height: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.ae-canvas {
+  display: block;
+  width: 500px;
+  height: auto;
+  max-width: 100%;
+  cursor: default;
+  user-select: none;
+}
+
+.ae-stage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.ae-outline-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.83rem;
+  color: #555;
+  cursor: pointer;
+  flex: 0 0 100%;
+  margin-bottom: 0.15rem;
+}
+
+.ae-outline-toggle input { accent-color: #111; }
+
+.ae-btn {
+  padding: 0.45rem 1.1rem;
+  border-radius: 6px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: #111;
+  color: #fff;
+  transition: background 0.15s;
+}
+
+.ae-btn:hover { background: #333; }
+
+.ae-btn--ghost {
+  background: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.ae-btn--ghost:hover { background: #f5f5f5; border-color: #bbb; }
+
+/* ---- Controls panel ---- */
+
+.ae-controls {
+  flex: 1 1 280px;
+  min-width: 260px;
+  max-width: 340px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+.ae-section {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.ae-section:last-child { border-bottom: none; }
+
+.ae-section h2 {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #aaa;
+  margin: 0;
+}
+
+.ae-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ae-text-btn {
+  background: none;
+  border: none;
+  color: #555;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+}
+
+.ae-text-btn:hover { color: #111; }
+.ae-text-btn:disabled { color: #ccc; pointer-events: none; }
+.ae-text-btn.ae-danger { color: #c00; }
+.ae-text-btn.ae-danger:hover { color: #900; }
+
+/* ---- Upload ---- */
+
+.ae-upload-btn {
+  display: block;
+  padding: 0.6rem 1rem;
+  border: 1.5px dashed #d5d5d5;
+  border-radius: 7px;
+  font-size: 0.83rem;
+  color: #666;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.ae-upload-btn:hover {
+  border-color: #111;
+  color: #111;
+  background: #fafafa;
+}
+
+#img-upload { display: none; }
+
+.ae-helper {
+  font-size: 0.74rem;
+  color: #aaa;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ---- Small buttons ---- */
+
+.ae-small-btn {
+  padding: 0.38rem 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  background: #fafafa;
+  color: #444;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.ae-small-btn:hover { background: #f0f0f0; border-color: #ccc; }
+.ae-small-btn:disabled { opacity: 0.35; pointer-events: none; }
+.ae-small-btn.ae-full { width: 100%; }
+
+/* ---- Gradient controls ---- */
+
+.ae-grad-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-top: 0.25rem;
+}
+
+.ae-grad-controls label {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.ae-grad-controls select {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 0.35rem 0.6rem;
+  color: #222;
+  font-size: 0.82rem;
+  width: 100%;
+}
+
+.ae-grad-colors {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.ae-color-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.76rem;
+  color: #777;
+}
+
+.ae-color-label input[type="color"] {
+  width: 100%;
+  height: 30px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+  padding: 2px 3px;
+}
+
+/* ---- Range sliders ---- */
+
+.ae-range-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.ae-range-group label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.ae-range-group output {
+  color: #111;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.ae-range-group input[type="range"] {
+  width: 100%;
+  accent-color: #111;
+}
+
+/* ---- Layers ---- */
+
+.ae-layers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ae-layer-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.38rem 0.6rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #555;
+  border: 1px solid transparent;
+  transition: background 0.1s;
+}
+
+.ae-layer-item:hover { background: #f5f5f5; }
+
+.ae-layer-item--sel {
+  background: #f0f4ff;
+  border-color: #c5d4ff;
+  color: #1a1a1a;
+}
+
+.ae-layer-icon { font-size: 0.85rem; opacity: 0.5; }
+.ae-layer-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.ae-layer-btns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ae-empty {
+  font-size: 0.8rem;
+  color: #bbb;
+  margin: 0;
+}
+
+/* ---- Print sizing (details/summary) ---- */
+
+.ae-details summary {
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #aaa;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ae-details summary::after {
+  content: '+';
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #ccc;
+}
+
+.ae-details[open] summary::after { content: '−'; }
+
+.ae-print-sizing {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.ae-print-sizing label {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.ae-mm-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ae-mm-row input {
+  width: 90px;
+  padding: 0.35rem 0.55rem;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  color: #111;
+  font-size: 0.83rem;
+}
+
+.ae-mm-row input:focus {
+  outline: none;
+  border-color: #aaa;
+}
+
+.ae-mm-row span {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+/* ---- Texture Settings ---- */
+
+.ae-fit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ae-fit-label {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.ae-fit-toggle {
+  display: flex;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.ae-fit-btn {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: none;
+  background: #fff;
+  color: #888;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.ae-fit-btn + .ae-fit-btn {
+  border-left: 1px solid #e0e0e0;
+}
+
+.ae-fit-btn:hover:not(:disabled) {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.ae-fit-btn--active {
+  background: #111 !important;
+  color: #fff !important;
+}
+
+.ae-fit-btn:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ---- Windows ---- */
+
+.ae-windows-price {
+  font-size: 0.76rem;
+  color: #888;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ae-windows-list {
+  list-style: none;
+  margin: 0.15rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ae-window-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.ae-window-item:hover {
+  background: #f5f5f5;
+}
+
+.ae-window-item--active {
+  background: color-mix(in srgb, var(--win-color) 8%, white);
+  border-color: color-mix(in srgb, var(--win-color) 40%, white);
+}
+
+.ae-win-num {
+  font-size: 0.72rem;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.1s, color 0.1s;
+}
+
+.ae-window-item--active .ae-win-num {
+  background: var(--win-color);
+  color: #fff;
+}
+
+.ae-win-dot {
+  font-size: 0.75rem;
+  color: #ccc;
+}
+
+.ae-win-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #444;
+}
+
+.ae-win-check {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--win-color);
+}
+
+/* ---- Method tabs ---- */
+
+.ae-tab-bar {
+  display: flex;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ae-tab {
+  flex: 1;
+  padding: 0.7rem 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #aaa;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: color 0.12s, border-color 0.12s;
+  margin-bottom: -1px;
+}
+
+.ae-tab:hover { color: #555; }
+
+.ae-tab--active {
+  color: #111;
+  border-bottom-color: #111;
+}
+
+/* ---- Per-window upload (Method 2) ---- */
+
+#win-upload { display: none; }
+
+.ae-upload-btn--has-image {
+  border-color: #aaa;
+  border-style: solid;
+  color: #333;
+}
+
+/* ---- Per-window all-windows overview grid ---- */
+
+.ae-win-overview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.1rem;
+}
+
+.ae-win-thumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.6rem 0.5rem;
+  border-radius: 6px;
+  border: 1.5px solid #e8e8e8;
+  cursor: pointer;
+  background: #fafafa;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.ae-win-thumb:hover { background: #f0f0f0; border-color: #ccc; }
+
+.ae-win-thumb--has {
+  background: color-mix(in srgb, var(--win-color) 6%, white);
+  border-color: color-mix(in srgb, var(--win-color) 30%, white);
+}
+
+.ae-win-thumb-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #e8e8e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #666;
+}
+
+.ae-win-thumb--has .ae-win-thumb-num {
+  background: var(--win-color);
+  color: #fff;
+}
+
+.ae-win-thumb-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #888;
+}
