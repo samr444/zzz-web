@@ -1,0 +1,665 @@
+/* ── Ball Draw ─────────────────────────────────────────────────────── */
+
+.bd {
+  --ball: clamp(92px, 12vw, 150px);
+  /* Sized by height too, so the card never pushes the button off a short phone. */
+  --card-w: min(340px, 80vw, 44svh);
+  --card-h: calc(var(--card-w) * 1.25);
+  --gap: calc(var(--ball) * 0.2);
+  --tier: #dfe7f2;
+  --ink: #eef1f6;
+  --muted: rgba(238, 241, 246, 0.6);
+
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  color: var(--ink);
+  background: #05060a;
+  font-family: var(--font-body);
+  isolation: isolate;
+}
+
+/* Background: the stadium, darkened for contrast, with smoke drifting
+   across it. Only transforms animate, so the blurred layers stay cached. */
+.bd-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bd-stadium {
+  position: absolute;
+  inset: -4%;
+  background: url('/ball-draw/stadium.webp') center 58% / cover no-repeat;
+  filter: blur(1.5px) brightness(0.62) saturate(0.95);
+  animation: bd-drift-in 40s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.bd-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 55% at 50% 45%, transparent 0%, rgba(4, 5, 9, 0.55) 100%),
+    linear-gradient(
+      to bottom,
+      rgba(4, 5, 9, 0.82) 0%,
+      rgba(4, 5, 9, 0.35) 28%,
+      rgba(4, 5, 9, 0.4) 55%,
+      rgba(4, 5, 9, 0.88) 100%
+    );
+}
+
+.bd-smoke {
+  position: absolute;
+  left: -40%;
+  width: 180%;
+  border-radius: 50%;
+  filter: blur(30px);
+  opacity: 0.8;
+  will-change: transform;
+  transition: opacity 1.4s ease;
+}
+
+.bd-smoke--a {
+  top: 52%;
+  height: 46%;
+  background:
+    radial-gradient(28% 38% at 18% 55%, rgba(225, 230, 240, 0.42), transparent 70%),
+    radial-gradient(24% 32% at 46% 45%, rgba(225, 230, 240, 0.30), transparent 70%),
+    radial-gradient(30% 40% at 76% 60%, rgba(225, 230, 240, 0.38), transparent 70%);
+  animation: bd-smoke-x 46s ease-in-out infinite alternate;
+}
+
+.bd-smoke--b {
+  top: 30%;
+  height: 40%;
+  background:
+    radial-gradient(22% 36% at 30% 50%, rgba(235, 238, 245, 0.25), transparent 70%),
+    radial-gradient(26% 40% at 64% 45%, rgba(235, 238, 245, 0.28), transparent 70%),
+    radial-gradient(18% 30% at 90% 55%, rgba(235, 238, 245, 0.19), transparent 70%);
+  animation: bd-smoke-x 62s ease-in-out infinite alternate-reverse;
+}
+
+.bd-smoke--c {
+  top: 70%;
+  height: 50%;
+  background:
+    radial-gradient(34% 42% at 24% 40%, rgba(210, 215, 228, 0.46), transparent 70%),
+    radial-gradient(30% 38% at 58% 50%, rgba(210, 215, 228, 0.38), transparent 70%),
+    radial-gradient(28% 40% at 88% 42%, rgba(210, 215, 228, 0.42), transparent 70%);
+  animation: bd-smoke-x 34s ease-in-out infinite alternate;
+  animation-delay: -12s;
+}
+
+/* The smoke thickens as the winning ball is revealed. */
+.bd[data-phase='reveal'] .bd-smoke,
+.bd[data-phase='result'] .bd-smoke {
+  opacity: 1;
+}
+
+@keyframes bd-smoke-x {
+  0% {
+    transform: translate3d(-12%, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2%, -3%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(12%, 2%, 0) scale(1.02);
+  }
+}
+
+@keyframes bd-drift-in {
+  from {
+    transform: scale(1.02);
+  }
+  to {
+    transform: scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bd-stadium,
+  .bd-smoke {
+    animation: none;
+  }
+}
+
+/* Storm: a dark veil over the stadium, and the lightning drawn above it */
+.bd-dim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #020308;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Cloud bank: blurred so the packed circles read as one soft fog. */
+.bd-clouds {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 130px;
+  z-index: 39;
+  pointer-events: none;
+  filter: blur(14px);
+}
+
+.bd-bolts {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 40;
+  pointer-events: none;
+}
+
+.bd-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 42%, #fff 0%, var(--tier) 45%, transparent 85%);
+  mix-blend-mode: screen;
+}
+
+/* Header */
+.bd-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+}
+
+.bd-home,
+.bd-head-spacer {
+  width: 64px;
+}
+
+.bd-mark {
+  display: block;
+  width: 56px;
+  height: auto;
+}
+
+.bd-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+/* Stage */
+.bd-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 0 0 40px;
+}
+
+.bd-kicker {
+  font-size: 0.82rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 0 16px;
+  transition: opacity 0.4s;
+}
+
+.bd[data-phase='reveal'] .bd-kicker,
+.bd[data-phase='result'] .bd-kicker {
+  opacity: 0;
+}
+
+/* Reel — the wrap holds the unmasked light layers; the reel itself fades
+   out at the sides. */
+.bd-reel-wrap {
+  position: relative;
+  width: 100%;
+  height: max(calc(var(--ball) * 2.5), calc(var(--card-h) + 24px));
+}
+
+.bd-reel {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
+}
+
+.bd-track {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  will-change: transform;
+}
+
+.bd-ball {
+  flex: 0 0 var(--ball);
+  width: var(--ball);
+  height: var(--ball);
+  position: relative;
+  will-change: transform, opacity;
+}
+
+/* Contact shadow on the "floor" */
+.bd-ball::after {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: -14%;
+  height: 12%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.7), transparent);
+  z-index: -1;
+}
+
+.bd-float {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.bd-float img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* White flare on the winning ball as it locks in */
+.bd-lock {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--ball) * 1.7);
+  height: calc(var(--ball) * 1.7);
+  margin: calc(var(--ball) * -0.85) 0 0 calc(var(--ball) * -0.85);
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.95) 60%,
+    rgba(220, 232, 255, 0.4) 72%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Centre selector ring */
+.bd-selector {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--ball) * 1.38);
+  height: calc(var(--ball) * 1.38);
+  margin: calc(var(--ball) * -0.69) 0 0 calc(var(--ball) * -0.69);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.bd-selector-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 0 18px rgba(170, 200, 255, 0.65),
+    inset 0 0 18px rgba(170, 200, 255, 0.35);
+}
+
+.bd-selector::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -30%;
+  width: 160%;
+  height: 24%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(170, 200, 255, 0.35), transparent);
+}
+
+/* Reveal light */
+.bd-halo,
+.bd-rays {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.bd-halo {
+  width: calc(var(--ball) * 3.4);
+  height: calc(var(--ball) * 3.4);
+  margin: calc(var(--ball) * -1.7) 0 0 calc(var(--ball) * -1.7);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tier) 0%, color-mix(in srgb, var(--tier) 35%, transparent) 40%, transparent 100%);
+  opacity: 0;
+  filter: blur(4px);
+}
+
+.bd-rays {
+  width: calc(var(--ball) * 4.4);
+  height: calc(var(--ball) * 4.4);
+  margin: calc(var(--ball) * -2.2) 0 0 calc(var(--ball) * -2.2);
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    color-mix(in srgb, var(--tier) 45%, transparent) 0deg 4deg,
+    transparent 4deg 18deg
+  );
+  -webkit-mask-image: radial-gradient(closest-side, #000 20%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 20%, transparent 100%);
+}
+
+.bd-spark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px 2px currentColor;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Player card: the tile the black ball opens into */
+.bd-player {
+  --tile: calc(var(--card-w) * 0.46);
+  position: relative;
+  flex: none;
+  width: var(--tile);
+  height: var(--tile);
+  border-radius: 18%;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 85% 10%, rgba(255, 255, 255, 0.28), transparent 55%),
+    linear-gradient(160deg, #6f9fe0 0%, #2f66b8 45%, #143a7a 100%);
+  border: 3px solid #fff;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.35),
+    0 0 28px 6px rgba(255, 255, 255, 0.55),
+    0 14px 30px rgba(0, 0, 0, 0.45);
+}
+
+.bd-player-stats {
+  position: absolute;
+  top: 7%;
+  left: 8%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.bd-player-pos {
+  font-size: calc(var(--tile) * 0.14);
+  letter-spacing: 0.02em;
+}
+
+.bd-player-rating {
+  margin-top: 2%;
+  font-size: calc(var(--tile) * 0.2);
+}
+
+.bd-player-ball {
+  width: calc(var(--tile) * 0.25);
+  height: calc(var(--tile) * 0.25);
+  margin-top: calc(var(--tile) * 0.05);
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.45));
+}
+
+.bd-player-photo {
+  position: absolute;
+  right: -4%;
+  bottom: 0;
+  height: 88%;
+  width: auto;
+  max-width: 72%;
+  object-fit: contain;
+  object-position: bottom right;
+}
+
+/* A regular photo (not a cut-out): fill the right side, fade into the tile. */
+img.bd-player-photo {
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 74%;
+  max-width: none;
+  object-fit: cover;
+  object-position: 50% 20%;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 38%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 38%);
+}
+
+.bd-player-silhouette {
+  width: 66%;
+  height: 80%;
+  fill: rgba(220, 235, 255, 0.55);
+}
+
+/* Flashcard that the black ball opens into; tap to flip to the watch. */
+.bd-flashcard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--card-w);
+  height: var(--card-h);
+  margin: calc(var(--card-h) / -2) 0 0 calc(var(--card-w) / -2);
+  perspective: 1400px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.bd[data-phase='result'] .bd-flashcard {
+  pointer-events: auto;
+}
+
+.bd-flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  touch-action: manipulation;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bd-flashcard-inner:focus-visible .bd-face {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.bd-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 8px;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65);
+}
+
+.bd-face--front {
+  padding-top: calc(var(--card-w) * 0.1);
+  background: linear-gradient(
+    to bottom,
+    #c7cad4 0%,
+    #9497a4 18%,
+    #555665 38%,
+    #2c2934 58%,
+    #1c1921 100%
+  );
+}
+
+/* Light rig across the top: crossed truss lines, a row of lamps, a streak. */
+.bd-face-lights {
+  position: absolute;
+  inset: 0 0 50% 0;
+  background:
+    radial-gradient(60% 12% at 50% 30%, rgba(255, 255, 255, 0.55), transparent 70%),
+    radial-gradient(3% 4% at 12% 30%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(3% 4% at 28% 30%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(3% 4% at 72% 30%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(3% 4% at 88% 30%, rgba(255, 255, 255, 0.8), transparent),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.14) 0 2px, transparent 2px 26px),
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.14) 0 2px, transparent 2px 26px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 30%, transparent 100%);
+  pointer-events: none;
+}
+
+.bd-card-text {
+  position: relative;
+  margin-top: calc(var(--card-w) * 0.08);
+  padding: 0 6%;
+  text-align: center;
+}
+
+.bd-card-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: calc(var(--card-w) * 0.1);
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.bd-card-club {
+  margin-top: 6px;
+  font-size: calc(var(--card-w) * 0.056);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(238, 241, 246, 0.85);
+}
+
+.bd-flip-hint {
+  position: absolute;
+  bottom: 5%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(238, 241, 246, 0.5);
+}
+
+.bd-face--back {
+  justify-content: center;
+  transform: rotateY(180deg);
+  background:
+    radial-gradient(55% 40% at 50% 45%, rgba(255, 255, 255, 0.22), transparent 70%),
+    linear-gradient(to bottom, #c7cad4 0%, #9497a4 18%, #555665 38%, #2c2934 58%, #1c1921 100%);
+}
+
+.bd-face--back img {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  padding: 5% 8% 13%;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.55));
+  user-select: none;
+}
+
+.bd-face--back .bd-flip-hint {
+  z-index: 1;
+}
+
+/* Button */
+.bd-btn {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #0b0d12;
+  background: linear-gradient(180deg, #ffffff, #cfd6e2);
+  border: 0;
+  border-radius: 999px;
+  padding: 15px 38px;
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(170, 200, 255, 0.25);
+  transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bd-btn:hover:not(:disabled) {
+  box-shadow: 0 10px 40px rgba(170, 200, 255, 0.45);
+}
+
+.bd-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.bd-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.bd-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+@media (max-width: 600px) {
+  .bd-head {
+    padding: 14px 16px;
+  }
+}
+
+/* Short screens (small phones, or a phone with its browser bars showing) */
+@media (max-height: 640px) {
+  .bd-head {
+    padding-top: 10px;
+    padding-bottom: 6px;
+  }
+  .bd-stage {
+    gap: 10px;
+    padding-bottom: 16px;
+  }
+  .bd-btn {
+    padding: 12px 32px;
+  }
+}
