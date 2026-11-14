@@ -16,6 +16,7 @@ export default function Home() {
             <a className="nav-link-scroll" href="#lineup">
               Current Lineup
             </a>
+            <Link href="/one-offs">One-Offs</Link>
             <a className="nav-link-scroll" href="#about">
               About
             </a>
@@ -80,11 +81,31 @@ export default function Home() {
         <div className="catalog-inner">
           <p className="catalog-label">Casio Mods</p>
           <h2 className="catalog-title">Current lineup</h2>
+
+          {/* Custom builders */}
           <div className="catalog-grid">
-            {lineup.map((build) => (
+            {lineup.filter((b) => b.category === "custom").map((build) => (
               <CatalogCard key={build.slug} build={build} />
             ))}
           </div>
+
+          {/* Model categories */}
+          {(["ae1200", "f91", "a158"] as const).map((cat) => {
+            const builds = lineup.filter((b) => b.category === cat);
+            if (!builds.length) return null;
+            const labels: Record<string, string> = { ae1200: "AE-1200", f91: "F-91W", a158: "A158" };
+            return (
+              <div key={cat} className="catalog-section">
+                <h3 className="catalog-section-heading">{labels[cat]}</h3>
+                <div className="catalog-grid">
+                  {builds.map((build) => (
+                    <CatalogCard key={build.slug} build={build} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+
         </div>
       </section>
 

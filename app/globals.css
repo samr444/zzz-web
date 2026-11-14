@@ -218,6 +218,22 @@ a {
   border-bottom: 1px solid var(--border-subtle);
 }
 
+.catalog-section {
+  margin-top: 3.5rem;
+}
+
+.catalog-section-heading {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
 .catalog-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

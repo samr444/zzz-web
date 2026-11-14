@@ -205,6 +205,7 @@ export function modPrice(mod: Mod, base: BaseWatch): number {
 /* ------------------------------------------------------------------ */
 
 export type BuildStatus = "available" | "sold-out" | "made-to-order" | "coming-soon";
+export type BuildCategory = "custom" | "ae1200" | "f91" | "a158" | "one-off";
 
 export interface Build {
   slug: string;
@@ -213,6 +214,7 @@ export interface Build {
   images: string[];
   status: BuildStatus;
   order: number;
+  category: BuildCategory;
   /** Hide the base + mod price breakdown; show only the total. */
   hideBreakdown?: boolean;
 }
@@ -221,12 +223,14 @@ export interface Build {
 // site's real cropped photos) rather than the /lineup/*.jpg placeholders —
 // those files don't exist in this repo.
 export const LINEUP: readonly Build[] = [
+  // ── Custom builders ──────────────────────────────────────────────────
   {
     slug: "custom-royale",
     baseWatchId: "ae1200whd-1av",
     mods: [{ kind: "custom-royale", label: "Custom Royale Build" }],
     images: ["/custom_card/black.webp", "/custom_card/silver.webp", "/custom_card/gold.webp"],
     status: "made-to-order",
+    category: "custom",
     order: 0,
   },
   {
@@ -241,7 +245,39 @@ export const LINEUP: readonly Build[] = [
       "/custom_card/f91/f91_spiderman.webp",
     ],
     status: "made-to-order",
-    order: 0.5,
+    category: "custom",
+    order: 1,
+    hideBreakdown: true,
+  },
+  // ── AE-1200 ──────────────────────────────────────────────────────────
+  {
+    slug: "ae1200-cr7",
+    baseWatchId: "ae1200whd-1av",
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "CR7", priceOverride: 3000 }],
+    images: ["/lineups/cr7.png"],
+    status: "available",
+    category: "ae1200",
+    order: 10,
+    hideBreakdown: true,
+  },
+  {
+    slug: "ae1200-akatsuki",
+    baseWatchId: "ae1200whd-1av",
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Akatsuki", priceOverride: 3504 }],
+    images: ["/lineups/akatsuki_ae1200.png"],
+    status: "available",
+    category: "ae1200",
+    order: 11,
+    hideBreakdown: true,
+  },
+  {
+    slug: "ae1200-bmw-leather",
+    baseWatchId: "ae1200whd-1av",
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "BMW · Leather Strap", priceOverride: 3204 }],
+    images: ["/lineups/bmw_ae1200_leather.png"],
+    status: "available",
+    category: "ae1200",
+    order: 12,
     hideBreakdown: true,
   },
   {
@@ -250,7 +286,8 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Minnal Murali", priceOverride: 1505 }],
     images: ["/lineups/ae1200_silver_minnal_murali.png"],
     status: "available",
-    order: 1,
+    category: "ae1200",
+    order: 13,
   },
   {
     slug: "ae1200-spiderman",
@@ -258,15 +295,70 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "custom-print", imageCount: 4, transparent: true, label: "Spiderman" }],
     images: ["/lineups/normalized/ae1200_spiderman_0.1.png"],
     status: "available",
-    order: 2,
+    category: "ae1200",
+    order: 14,
   },
+  // ── F91 ──────────────────────────────────────────────────────────────
+  {
+    slug: "f91-doom-black",
+    baseWatchId: "f91-black",
+    mods: [{ kind: "custom-f91", label: "Doom" }],
+    images: ["/lineups/doom_f91_black.png"],
+    status: "available",
+    category: "f91",
+    order: 10,
+    hideBreakdown: true,
+  },
+  {
+    slug: "f91-black-spiderman",
+    baseWatchId: "f91-black",
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Spiderman", priceOverride: 1704 }],
+    images: ["/lineups/f91_black_spiderman.png"],
+    status: "available",
+    category: "f91",
+    order: 11,
+    hideBreakdown: true,
+  },
+  // ── A158 ─────────────────────────────────────────────────────────────
+  {
+    slug: "a158-naruto",
+    baseWatchId: "a158wa-1",
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Naruto", priceOverride: 1604 }],
+    images: ["/lineups/normalized/casio_a158_naruto.png"],
+    status: "available",
+    category: "a158",
+    order: 10,
+    hideBreakdown: true,
+  },
+  {
+    slug: "a158-green-filter",
+    baseWatchId: "a158wa-1",
+    mods: [{ kind: "color-filter", colorCount: 1, label: "Green Filter", priceOverride: 1604 }],
+    images: ["/lineups/normalized/a158_green_filter.png"],
+    status: "available",
+    category: "a158",
+    order: 11,
+    hideBreakdown: true,
+  },
+  {
+    slug: "a158-deadpool",
+    baseWatchId: "a158wa-1",
+    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Deadpool", priceOverride: 1604 }],
+    images: ["/lineups/a158_deadpool.png"],
+    status: "available",
+    category: "a158",
+    order: 12,
+    hideBreakdown: true,
+  },
+  // ── One-Offs & Limited Editions ───────────────────────────────────────
   {
     slug: "ae1200-3-color-black",
     baseWatchId: "ae1200wh-1cvcf",
     mods: [{ kind: "color-filter", colorCount: 3, label: "3-Color Black" }],
     images: ["/lineups/normalized/ae1200_3color_black_strap.png"],
     status: "sold-out",
-    order: 3,
+    category: "one-off",
+    order: 10,
   },
   {
     slug: "ae1200-3-color-orange",
@@ -277,7 +369,8 @@ export const LINEUP: readonly Build[] = [
     ],
     images: ["/lineups/normalized/ae1200_3color.png"],
     status: "sold-out",
-    order: 4,
+    category: "one-off",
+    order: 11,
   },
   {
     slug: "f91-luffy-blue",
@@ -285,25 +378,8 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Luffy Blue", priceOverride: 1304 }],
     images: ["/lineups/normalized/blue_f91_luffy.png"],
     status: "sold-out",
-    order: 5,
-    hideBreakdown: true,
-  },
-  {
-    slug: "a158-naruto",
-    baseWatchId: "a158wa-1",
-    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Naruto", priceOverride: 1604 }],
-    images: ["/lineups/normalized/casio_a158_naruto.png"],
-    status: "available",
-    order: 6,
-    hideBreakdown: true,
-  },
-  {
-    slug: "a158-green-filter",
-    baseWatchId: "a158wa-1",
-    mods: [{ kind: "color-filter", colorCount: 1, label: "Green Filter", priceOverride: 1604 }],
-    images: ["/lineups/normalized/a158_green_filter.png"],
-    status: "available",
-    order: 7,
+    category: "one-off",
+    order: 12,
     hideBreakdown: true,
   },
   {
@@ -312,7 +388,8 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "color-filter", colorCount: 1, label: "Red Filter" }],
     images: ["/lineups/normalized/casio-dw-291h-red.png"],
     status: "available",
-    order: 8,
+    category: "one-off",
+    order: 13,
   },
   {
     slug: "ae1200-yellow-filter",
@@ -320,25 +397,8 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "color-filter", colorCount: 1, label: "Yellow Filter" }],
     images: ["/lineups/normalized/casio-ae-1200whd.png"],
     status: "available",
-    order: 9,
-  },
-  {
-    slug: "a158-deadpool",
-    baseWatchId: "a158wa-1",
-    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Deadpool", priceOverride: 1604 }],
-    images: ["/lineups/a158_deadpool.png"],
-    status: "available",
-    order: 10,
-    hideBreakdown: true,
-  },
-  {
-    slug: "f91-black-spiderman",
-    baseWatchId: "f91-black",
-    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Spiderman", priceOverride: 1704 }],
-    images: ["/lineups/f91_black_spiderman.png"],
-    status: "available",
-    order: 11,
-    hideBreakdown: true,
+    category: "ae1200",
+    order: 15,
   },
   {
     slug: "f91-blue-van-gogh",
@@ -346,7 +406,8 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Van Gogh", priceOverride: 1304 }],
     images: ["/lineups/f91_blue_vincent_van_gogh.png"],
     status: "sold-out",
-    order: 12,
+    category: "one-off",
+    order: 15,
     hideBreakdown: true,
   },
   {
@@ -355,7 +416,8 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "color-filter", colorCount: 1, label: "Gradient Theme", priceOverride: 1304 }],
     images: ["/lineups/f91_black_gradient_theme.png"],
     status: "sold-out",
-    order: 13,
+    category: "one-off",
+    order: 16,
     hideBreakdown: true,
   },
   {
@@ -364,34 +426,8 @@ export const LINEUP: readonly Build[] = [
     mods: [{ kind: "custom-print", imageCount: 1, transparent: true, label: "NASA Future Concept" }],
     images: ["/lineups/ae1200_future_concept_coming_soon.png"],
     status: "coming-soon",
-    order: 14,
-  },
-  {
-    slug: "ae1200-akatsuki",
-    baseWatchId: "ae1200whd-1av",
-    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "Akatsuki", priceOverride: 3504 }],
-    images: ["/lineups/akatsuki_ae1200.png"],
-    status: "available",
-    order: 0.6,
-    hideBreakdown: true,
-  },
-  {
-    slug: "ae1200-bmw-leather",
-    baseWatchId: "ae1200whd-1av",
-    mods: [{ kind: "custom-print", imageCount: 1, transparent: false, label: "BMW · Leather Strap", priceOverride: 3204 }],
-    images: ["/lineups/bmw_ae1200_leather.png"],
-    status: "available",
-    order: 0.7,
-    hideBreakdown: true,
-  },
-  {
-    slug: "f91-doom-black",
-    baseWatchId: "f91-black",
-    mods: [{ kind: "custom-f91", label: "Doom" }],
-    images: ["/lineups/doom_f91_black.png"],
-    status: "available",
-    order: 0.8,
-    hideBreakdown: true,
+    category: "one-off",
+    order: 17,
   },
 ];
 
@@ -412,6 +448,7 @@ export interface ResolvedBuild {
   modLines: { label: string; amount: number }[];
   images: string[];
   status: BuildStatus;
+  category: BuildCategory;
   basePrice: number;
   /** Total of all mod costs. */
   modPrice: number;
@@ -454,6 +491,7 @@ export function resolveBuild(build: Build): ResolvedBuild {
     modLines,
     images: build.images,
     status: build.status,
+    category: build.category,
     basePrice: base.basePrice,
     modPrice: mp,
     price,
