@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
-import ZzzMark from '../components/ZzzMark';
 import { createStorm, type Storm } from './storm';
+import './ball-draw.css';
 
 type Tier = 'silver' | 'gold' | 'black';
 
@@ -64,8 +64,14 @@ const INITIAL_REEL: Tier[] = Array.from({ length: REEL_LENGTH }, (_, i) =>
 
 type Phase = 'idle' | 'spinning' | 'reveal' | 'result';
 
-export default function BallDraw() {
-  const rootRef = useRef<HTMLElement>(null);
+interface BallDrawProps {
+  /** The watch's normal details page, offered once the card is revealed. */
+  detailsHref: string;
+  onClose: () => void;
+}
+
+export default function BallDraw({ detailsHref, onClose }: BallDrawProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const reelRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -106,9 +112,11 @@ export default function BallDraw() {
   const measure = useCallback(() => {
     const track = trackRef.current;
     if (!track || track.children.length < 2) return;
-    const a = track.children[0] as HTMLElement;
-    const b = track.children[1] as HTMLElement;
-    metrics.current = { size: a.offsetWidth, step: b.offsetLeft - a.offsetLeft };
+    // Computed styles keep the fractional pixels that offsetWidth/offsetLeft
+    // round away; a 0.4px error per ball is 16px by the time the reel stops.
+    const size = parseFloat(getComputedStyle(track.children[0]).width);
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+    metrics.current = { size, step: size + gap };
   }, []);
 
   /* One frame: slide the track and lift the balls nearest the selector. */
@@ -125,7 +133,8 @@ export default function BallDraw() {
     const hi = Math.min(balls.length - 1, Math.ceil(p + VISIBLE_RANGE));
     for (let i = lo; i <= hi; i++) {
       const d = Math.abs(i - p);
-      const scale = 1 + 0.2 * Math.max(0, 1 - d);
+      const k = Math.max(0, 1 - d / 1.3);
+      const scale = 1 + 0.2 * k * k * (3 - 2 * k);
       const alpha = 0.45 + 0.55 * Math.max(0, 1 - d / 3.5);
       const el = balls[i] as HTMLElement;
       el.style.transform = `scale(${scale})`;
@@ -189,8 +198,6 @@ export default function BallDraw() {
       gsap.set(cardRef.current, { opacity: 0 });
       gsap.set(flipRef.current, { rotationY: 0 });
 
-      // Where the reel overshoots before easing back onto the winner.
-      const overshoot = reduced ? 0 : Math.random() * 0.6 - 0.3;
       const ring = selectorRef.current?.firstElementChild ?? null;
       let lastTick = Math.round(START_POS);
 
@@ -199,9 +206,9 @@ export default function BallDraw() {
       tl.fromTo(reelRef.current, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' });
 
       tl.to(pos.current, {
-        value: WIN_INDEX + overshoot,
-        duration: reduced ? 2 : 6.5,
-        ease: 'power4.out',
+        value: WIN_INDEX,
+        duration: reduced ? 2 : 5.8,
+        ease: 'power3.out',
         onUpdate: () => {
           render();
           const tick = Math.round(pos.current.value);
@@ -212,12 +219,12 @@ export default function BallDraw() {
         },
       });
 
-      tl.to(pos.current, {
-        value: WIN_INDEX,
-        duration: Math.abs(overshoot) > 0.05 ? 0.8 : 0.01,
-        ease: 'sine.inOut',
-        onUpdate: render,
+      // Land exactly on the winner whatever the last frame rounded to.
+      tl.add(() => {
+        pos.current.value = WIN_INDEX;
+        render();
       });
+      tl.to({}, { duration: 0.25 });
 
       /* ── Lock-in: the chosen ball flares white, as in the reference. ── */
       tl.add(() => {
@@ -338,13 +345,18 @@ export default function BallDraw() {
         gsap.to(cardRef.current, { y: -6, duration: 1.8, ease: 'sine.inOut', yoyo: true, repeat: -1 });
         gsap.to(raysRef.current, { rotation: '+=360', duration: 24, ease: 'none', repeat: -1 });
       });
+
+      // The card turns over by itself to show the watch.
+      tl.add(() => {
+        setFlipped(true);
+        gsap.to(flipRef.current, { rotationY: 180, duration: 0.9, ease: 'power3.inOut' });
+      }, '+=1.3');
     }, rootRef);
 
     return () => ctx.revert();
   }, [drawId, measure, render]);
 
-  const draw = () => {
-    if (phase === 'spinning' || phase === 'reveal') return;
+  const draw = useCallback(() => {
     const w = WINNING_TIER;
     const next = makeReel(w);
     pendingWinner.current = w;
@@ -354,7 +366,26 @@ export default function BallDraw() {
     setPhase('spinning');
     setReel(next);
     setDrawId((n) => n + 1);
-  };
+  }, []);
+
+  /* The draw starts as soon as the overlay opens. */
+  useEffect(() => {
+    draw();
+  }, [draw]);
+
+  /* Escape closes; the page behind stays put while the overlay is up. */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
 
   const flip = () => {
     if (phase !== 'result') return;
@@ -363,10 +394,16 @@ export default function BallDraw() {
     gsap.to(flipRef.current, { rotationY: next ? 180 : 0, duration: 0.8, ease: 'power3.inOut' });
   };
 
-  const busy = phase === 'spinning' || phase === 'reveal';
-
   return (
-    <main ref={rootRef} className="bd" data-phase={phase} data-tier={winner ?? undefined}>
+    <div
+      ref={rootRef}
+      className="bd"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Ball draw"
+      data-phase={phase}
+      data-tier={winner ?? undefined}
+    >
       <div className="bd-bg" aria-hidden="true">
         <div className="bd-stadium" />
         <div className="bd-shade" />
@@ -380,15 +417,18 @@ export default function BallDraw() {
       <div ref={flashRef} className="bd-flash" aria-hidden="true" />
 
       <header className="bd-head">
-        <Link href="/" className="bd-home" aria-label="ZzzCulture home">
-          <ZzzMark className="bd-mark" />
-        </Link>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="bd-logo" src="/logo/logo_text_white.svg" alt="ZzzCulture" />
         <h1 className="bd-title">Ball Draw</h1>
-        <span className="bd-head-spacer" />
+        <button type="button" className="bd-close" onClick={onClose} aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
       </header>
 
       <section className="bd-stage">
-        <p className="bd-kicker">Tap draw — where it stops is what you get</p>
+        <p className="bd-kicker">Where it stops is what you get</p>
 
         <div ref={wrapRef} className="bd-reel-wrap">
           <div ref={haloRef} className="bd-halo" aria-hidden="true" />
@@ -466,12 +506,17 @@ export default function BallDraw() {
           </div>
         </div>
 
-        <button type="button" className="bd-btn" onClick={draw} disabled={busy}>
-          {busy ? 'Drawing…' : phase === 'result' ? 'Draw again' : 'Draw a ball'}
-        </button>
-
+        {phase === 'result' ? (
+          <Link href={detailsHref} className="bd-btn">
+            View details
+          </Link>
+        ) : (
+          <button type="button" className="bd-btn" disabled>
+            Drawing…
+          </button>
+        )}
       </section>
-    </main>
+    </div>
   );
 }
 

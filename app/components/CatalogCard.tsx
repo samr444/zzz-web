@@ -1,11 +1,16 @@
 import Link from "next/link";
-import { formatINR } from "../data";
 import type { ResolvedBuild } from "../data";
 import { CardImageSlider } from "./CardImageSlider";
+import { BallDrawCard } from "./ball-draw/BallDrawCard";
 
 interface CatalogCardProps {
   build: ResolvedBuild;
 }
+
+/** This build opens with the ball draw instead of going straight to its page. */
+const BALL_DRAW_SLUG = "ae1200-cr7";
+/** The card shows this instead of the watch, which the draw reveals. */
+const BALL_DRAW_TEASER = "/lineups/cr7-portrait.webp";
 
 export function CatalogCard({ build }: CatalogCardProps) {
   const soldOut = build.status === "sold-out";
@@ -16,10 +21,19 @@ export function CatalogCard({ build }: CatalogCardProps) {
   const isCustomRoyale = build.slug === 'custom-royale';
   const isCustomF91 = build.slug === 'custom-f91';
   const isCustomBuilder = isCustomRoyale || isCustomF91;
+  const isBallDraw = build.slug === BALL_DRAW_SLUG;
 
   const imageBox = (
-    <div className={`catalog-card-image${soldOut ? " is-sold-out" : ""}${comingSoon ? " is-coming-soon" : ""}${isCustomRoyale ? " custom-royale-card" : ""}${isCustomF91 ? " custom-f91-card" : ""}`}>
-      {build.images.length > 1 ? (
+    <div className={`catalog-card-image${soldOut ? " is-sold-out" : ""}${comingSoon ? " is-coming-soon" : ""}${isCustomRoyale ? " custom-royale-card" : ""}${isCustomF91 ? " custom-f91-card" : ""}${isBallDraw ? " is-ball-draw" : ""}`}>
+      {isBallDraw && (
+        <span className="catalog-card-badge">
+          <span className="catalog-card-badge-dot" aria-hidden />
+          New drop · Tap to draw
+        </span>
+      )}
+      {isBallDraw ? (
+        <img src={BALL_DRAW_TEASER} alt="CR7 edition: draw to reveal the watch" />
+      ) : build.images.length > 1 ? (
         <CardImageSlider images={build.images} alt={alt} soldOut={soldOut} />
       ) : (
         <>
@@ -53,6 +67,10 @@ export function CatalogCard({ build }: CatalogCardProps) {
     <div className="catalog-card">
       {soldOut || comingSoon ? (
         imageBox
+      ) : isBallDraw ? (
+        <BallDrawCard detailsHref={`/builds/${build.slug}`} label={alt}>
+          {imageBox}
+        </BallDrawCard>
       ) : (
         <Link href={`/builds/${build.slug}`} className="catalog-card-image-link">
           {imageBox}
@@ -67,7 +85,7 @@ export function CatalogCard({ build }: CatalogCardProps) {
         ) : isCustomF91 ? (
           <div>
             <p className="catalog-card-name">Customise Casio F-91W</p>
-            <span className="catalog-card-tag">Casio F-91W · <span style={{ color: '#16a34a' }}>Free Shipping</span></span>
+            <span className="catalog-card-tag">Casio F-91W</span>
           </div>
         ) : (
           <div>
@@ -85,8 +103,10 @@ export function CatalogCard({ build }: CatalogCardProps) {
             )}
           </div>
         )}
-        {!isCustomRoyale && !comingSoon && (
-          <p className="catalog-card-price">{build.formattedPrice}</p>
+        {isBallDraw ? (
+          <p className="catalog-card-reveal">Draw to reveal</p>
+        ) : (
+          !isCustomBuilder && !comingSoon && <p className="catalog-card-price">{build.formattedPrice}</p>
         )}
       </div>
     </div>

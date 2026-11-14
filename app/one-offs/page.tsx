@@ -15,10 +15,10 @@ export default function OneOffsPage() {
             <img src="/logo/logo_text.png" alt="ZzzCulture" />
           </Link>
           <nav className="nav-links">
-            <Link href="/#lineup">Current Lineup</Link>
+            <Link href="/#lineup">Lineup</Link>
             <Link href="/one-offs">One-Offs</Link>
             <Link href="/#about">About</Link>
-            <Link href="/builds/custom-royale">Customise in 2D Builder</Link>
+            <Link href="/builds/custom-royale" className="nav-link-accent">Build yours</Link>
           </nav>
         </div>
       </header>

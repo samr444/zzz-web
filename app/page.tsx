@@ -1,9 +1,16 @@
 import Link from "next/link";
 import { CatalogCard } from "./components/CatalogCard";
+import { WavyBackground } from "./components/WavyBackground";
 import { getLineup, INSTAGRAM_URL, WHATSAPP_NUMBER } from "./data";
+
+const CATEGORY_LABELS = { ae1200: "AE-1200", f91: "F-91W", a158: "A158" } as const;
 
 export default function Home() {
   const lineup = getLineup();
+  const builders = lineup.filter((b) => b.category === "custom");
+  const categories = (["ae1200", "f91", "a158"] as const)
+    .map((id) => ({ id, label: CATEGORY_LABELS[id], builds: lineup.filter((b) => b.category === id) }))
+    .filter((c) => c.builds.length > 0);
 
   return (
     <>
@@ -14,39 +21,50 @@ export default function Home() {
           </Link>
           <nav className="nav-links">
             <a className="nav-link-scroll" href="#lineup">
-              Current Lineup
+              Lineup
             </a>
             <Link href="/one-offs">One-Offs</Link>
             <a className="nav-link-scroll" href="#about">
               About
             </a>
-            <Link href="/builds/custom-royale">Customise in 2D Builder</Link>
+            <Link href="/builds/custom-royale" className="nav-link-accent">Build yours</Link>
           </nav>
         </div>
       </header>
 
       <section className="hero" id="about">
+        <WavyBackground className="hero-waves" />
         <div className="hero-inner">
-          <h1 className="hero-title">Where Craft Meets Culture</h1>
-          <p className="hero-copy">
-            Precision engineering meets curated aesthetics. Elevating classic digital
-            timepieces for the modern collector.
-          </p>
-          <div className="hero-image-frame">
-            <div className="hero-watch-frame">
-              <img src="/hero_image_cut.png" alt="ZzzCulture hand-modded Casio instrument panel" className="hero-watch-overlay" />
-              <img src="/hero_image_cut_new.jpeg" alt="" className="hero-watch-fill" />
-              {/* <video
-                src="/hero_video/hero-colour-grid.webm"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="hero-watch-video"
-              /> */}
+          <div className="hero-text">
+            <p className="hero-eyebrow">Hand-modded Casio watches</p>
+            <h1 className="hero-title">Where Craft Meets Culture</h1>
+            <p className="hero-copy">
+              Custom Casio mods, built to order. Pick a base and make it yours.
+            </p>
+            <div className="hero-actions">
+              <Link className="btn btn-primary" href="/builds/custom-royale">
+                Build your own
+              </Link>
+              <a className="btn btn-secondary" href="#lineup">
+                Shop ready-made
+              </a>
             </div>
+            <p className="hero-note">Order on Instagram or WhatsApp. We reply directly.</p>
+          </div>
+          <div className="hero-builders">
+            {builders.map((build) => (
+              <CatalogCard key={build.slug} build={build} />
+            ))}
           </div>
         </div>
+      </section>
+
+      <section className="steps" aria-label="How it works">
+        <ol className="steps-inner">
+          <li><span className="steps-num">01</span>Pick a base</li>
+          <li><span className="steps-num">02</span>Design the dial</li>
+          <li><span className="steps-num">03</span>We build and ship</li>
+        </ol>
       </section>
 
       {/* SVG filter for electric border — referenced by CatalogCard */}
@@ -80,32 +98,24 @@ export default function Home() {
       <section className="catalog" id="lineup">
         <div className="catalog-inner">
           <p className="catalog-label">Casio Mods</p>
-          <h2 className="catalog-title">Current lineup</h2>
-
-          {/* Custom builders */}
-          <div className="catalog-grid">
-            {lineup.filter((b) => b.category === "custom").map((build) => (
-              <CatalogCard key={build.slug} build={build} />
+          <nav className="catalog-chips" aria-label="Watch models">
+            {categories.map((c) => (
+              <a key={c.id} className="catalog-chip" href={`#${c.id}`}>
+                {c.label}
+              </a>
             ))}
-          </div>
+          </nav>
 
-          {/* Model categories */}
-          {(["ae1200", "f91", "a158"] as const).map((cat) => {
-            const builds = lineup.filter((b) => b.category === cat);
-            if (!builds.length) return null;
-            const labels: Record<string, string> = { ae1200: "AE-1200", f91: "F-91W", a158: "A158" };
-            return (
-              <div key={cat} className="catalog-section">
-                <h3 className="catalog-section-heading">{labels[cat]}</h3>
-                <div className="catalog-grid">
-                  {builds.map((build) => (
-                    <CatalogCard key={build.slug} build={build} />
-                  ))}
-                </div>
+          {categories.map((c, i) => (
+            <div key={c.id} id={c.id} className={`catalog-section${i === 0 ? " is-first" : ""}`}>
+              <h3 className="catalog-section-heading">{c.label}</h3>
+              <div className="catalog-grid">
+                {c.builds.map((build) => (
+                  <CatalogCard key={build.slug} build={build} />
+                ))}
               </div>
-            );
-          })}
-
+            </div>
+          ))}
         </div>
       </section>
 
