@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CatalogCard } from "./components/CatalogCard";
+import { UpcomingDropCard } from "./components/UpcomingDropCard";
 import { WavyBackground } from "./components/WavyBackground";
 import { getLineup, INSTAGRAM_URL, WHATSAPP_NUMBER } from "./data";
 
@@ -38,17 +39,7 @@ export default function Home() {
           <div className="hero-text">
             <p className="hero-eyebrow">Hand-modded Casio watches</p>
             <h1 className="hero-title">Where Craft Meets Culture</h1>
-            <p className="hero-copy">
-              Custom Casio mods, built to order. Pick a base and make it yours.
-            </p>
-            <div className="hero-actions">
-              <Link className="btn btn-primary" href="/builds/custom-royale">
-                Build your own
-              </Link>
-              <a className="btn btn-secondary" href="#lineup">
-                Shop ready-made
-              </a>
-            </div>
+            <p className="hero-copy">Custom Casio mods, hand built.</p>
             <p className="hero-note">Order on Instagram or WhatsApp. We reply directly.</p>
           </div>
           <div className="hero-builders">
@@ -110,6 +101,7 @@ export default function Home() {
             <div key={c.id} id={c.id} className={`catalog-section${i === 0 ? " is-first" : ""}`}>
               <h3 className="catalog-section-heading">{c.label}</h3>
               <div className="catalog-grid">
+                {c.id === "ae1200" && <UpcomingDropCard />}
                 {c.builds.map((build) => (
                   <CatalogCard key={build.slug} build={build} />
                 ))}

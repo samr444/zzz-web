@@ -1,0 +1,206 @@
+/* GTA VI landing — plain-CSS port of the original Tailwind styles, scoped to .gta.
+   Breakpoints: xs 20rem, sm 40rem, md 48rem, lg 64rem, xl 80rem, 2xl 96rem, 3xl 120rem. */
+
+@font-face { font-family: "GTA Long"; src: url("/gta-vi/fonts/long.woff") format("woff"); font-display: swap; }
+@font-face { font-family: "GTA Round"; src: url("/gta-vi/fonts/round.woff") format("woff"); font-display: swap; }
+@font-face { font-family: "GTA Round Bold"; font-weight: bold; src: url("/gta-vi/fonts/round-bold.woff") format("woff"); font-display: swap; }
+
+.gta {
+  --gta-yellow: #fff9cb;
+  --gta-pink: #ffb0c4;
+  width: 100dvw;
+  overflow-x: hidden;
+  font-family: "GTA Round", sans-serif;
+  color: #fff;
+  background: linear-gradient(223.17deg, #1c1829 0%, #1b1828 8.61%, #191724 17.21%, #161520 25.82%, #14131c 34.42%, #121218 43.03%, #111117 51.63%);
+}
+
+.gta h1, .gta h2, .gta h3 { font-size: inherit; font-weight: inherit; }
+.gta img, .gta video { display: block; max-width: 100%; }
+
+.gta .col-center { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2.5rem; }
+.gta .presents {
+  font-family: "GTA Round Bold", sans-serif; font-weight: 800; font-size: 1.75rem; line-height: 1.1;
+  letter-spacing: 0.18em; text-transform: uppercase; text-align: center; color: #fff;
+}
+.gta .casio-logo { width: 9rem; opacity: 0.85; }
+
+.gta .gta-timer { display: flex; gap: 1.25rem; }
+.gta .gta-timer-unit { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; min-width: 3.5rem; }
+.gta .gta-timer-value,
+.gta .gta-timer-done {
+  font-family: "GTA Round Bold", sans-serif; font-weight: 800;
+  font-size: 2.75rem; line-height: 1; font-variant-numeric: tabular-nums;
+  background: linear-gradient(to right, #fb64b6, #ff6467, #ff8904);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.gta .gta-timer-done { text-transform: uppercase; }
+.gta .gta-timer-label {
+  font-family: "GTA Round Bold", sans-serif; font-size: 0.7rem;
+  letter-spacing: 0.2em; text-transform: uppercase; color: #a9a3c0;
+}
+
+/* ── nav ── */
+.gta-nav {
+  position: fixed; top: 0; left: 0; width: 100%; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.25rem;
+}
+.gta-nav-logo { transform: scale(0.9); }
+.gta-nav-menu { width: 2.5rem; }
+
+.gta .gradient-title {
+  font-size: 5rem; line-height: 4.5rem;
+  font-family: "GTA Round Bold", sans-serif; font-weight: 800;
+  text-transform: uppercase; text-align: center;
+  background: linear-gradient(to right, #fb64b6, #ff6467, #ff8904);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+
+/* ── hero ── */
+.gta .hero-section { width: 100dvw; height: 100dvh; position: relative; overflow: hidden; }
+.gta .mask-wrapper {
+  width: 100%; height: 100%;
+  -webkit-mask-image: url("/gta-vi/images/big-hero-text.svg");
+  mask-image: url("/gta-vi/images/big-hero-text.svg");
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+}
+.gta .scale-out { object-fit: cover; height: 100%; }
+.gta .title-logo { position: absolute; top: 0; height: 100%; object-fit: cover; }
+.gta .mask-logo { width: 100%; height: 100%; object-fit: cover; }
+.gta .fake-logo-wrapper { position: absolute; z-index: 50; left: 50%; transform: translateX(-50%); }
+.gta .overlay-logo { width: 15rem; height: 100%; object-fit: cover; opacity: 0; }
+
+.gta .entrance-message {
+  position: absolute; inset: 0; width: 100%; height: 100dvh; overflow: hidden; z-index: 20; opacity: 1;
+  -webkit-mask-image: radial-gradient(circle at 50% 100vh, black 0%, transparent 0%);
+  mask-image: radial-gradient(circle at 50% 100vh, black 0%, transparent 0%);
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+}
+.gta .entrance-logo { position: absolute; left: 50%; transform: translateX(-50%); width: 12rem; }
+.gta .text-wrapper { margin-top: 10rem; }
+
+/* ── videos ── */
+.gta .vd-frame { height: 100dvh; }
+.gta .first-vd { width: 100%; height: 100%; object-fit: cover; object-position: 75% center; }
+.gta .lucia { position: relative; }
+.gta .second-vd { width: 100%; height: 100%; object-fit: cover; object-position: 15% 0%; }
+
+/* ── character sections ── */
+.gta .jason,
+.gta .lucia-life {
+  position: relative; z-index: 10;
+  padding-block: 10rem; margin-top: 15rem;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 1.25rem;
+  width: 100dvw; overflow-x: hidden;
+}
+.gta .jason { padding-left: 2.5rem; }
+
+.gta .jason h1, .gta .lucia-life h1 {
+  color: var(--gta-yellow); font-family: "GTA Long", sans-serif; text-transform: uppercase;
+  font-size: 6rem; line-height: 1; margin-bottom: 5rem;
+}
+.gta .jason h2, .gta .lucia-life h2 {
+  color: var(--gta-pink); font-size: 1.875rem; line-height: 2.25rem;
+  margin-bottom: 1.75rem; padding-right: 2.5rem;
+}
+.gta .jason p, .gta .lucia-life p {
+  color: #fff; font-size: 1.125rem; line-height: 1.75rem; padding-right: 3.5rem;
+}
+
+.gta .jason-content,
+.gta .lucia-life-content { background: radial-gradient(ellipse, #111117 20%, transparent 70%); }
+.gta .jason-content { max-width: 32rem; }
+
+.gta .img-box { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 24rem; }
+.gta .lucia-life .img-box { align-items: flex-end; padding-left: 2.5rem; }
+
+.gta .jason-1, .gta .jason-2, .gta .jason-3,
+.gta .lucia-1, .gta .lucia-2, .gta .lucia-3 { background: var(--gta-yellow); }
+
+.gta .jason-1 img, .gta .jason-2 img, .gta .jason-3 img,
+.gta .lucia-1 img, .gta .lucia-2 img, .gta .lucia-3 img {
+  width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s ease-in-out;
+}
+
+.gta .jason-1 { transform: translateX(-1.25rem); }
+.gta .jason-1 img { object-position: 5% center; }
+.gta .jason-1 img:hover { transform: scale(0.98); }
+.gta .jason-2 { height: 90vh; margin-top: 5rem; transform: translateX(-1.25rem); }
+.gta .jason-2 img { object-position: 80% center; }
+.gta .jason-2 img:hover { transform: scale(0.97, 0.98); }
+.gta .jason-3 { height: 50vh; transform: translateX(-1.25rem); }
+.gta .jason-3 img { object-position: 42% center; }
+.gta .jason-3 img:hover { transform: scale(0.97); }
+
+.gta .lucia-copy { max-width: 36rem; padding-left: 2.5rem; }
+.gta .lucia-1 { transform: translateX(-1.25rem); }
+.gta .lucia-1 img { object-position: 85% center; }
+.gta .lucia-1 img:hover { transform: scale(0.98); }
+.gta .lucia-2 { width: 80%; margin-block: 5rem; transform: translateX(1.25rem); }
+.gta .lucia-2 img { object-position: 50% center; }
+.gta .lucia-2 img:hover { transform: scale(0.98); }
+.gta .lucia-3 { transform: translateX(-1.25rem); }
+.gta .lucia-3 img { object-position: 62% center; }
+.gta .lucia-3 img:hover { transform: scale(0.98, 0.99); }
+
+/* ── final ── */
+.gta .final { position: relative; height: 100dvh; overflow: hidden; }
+.gta .final-content { width: 100%; height: 100%; transform: scale(1.1); }
+.gta .final-content video { width: 100%; height: 100%; object-fit: cover; }
+.gta .final-message { position: absolute; width: 100%; height: 100dvh; overflow: hidden; z-index: 50; opacity: 1; }
+.gta .outro-logo { width: 13rem; }
+
+/* ── breakpoints ── */
+@media (min-width: 20rem) {
+  .gta .fake-logo-wrapper, .gta .entrance-logo { top: 9.5rem; }
+}
+@media (min-width: 40rem) {
+  .gta .fake-logo-wrapper, .gta .entrance-logo { top: 12.8rem; }
+}
+@media (min-width: 48rem) {
+  .gta-nav { padding: 4rem; }
+  .gta .gradient-title { font-size: 8rem; line-height: 7rem; }
+  .gta .presents { font-size: 3rem; }
+  .gta .casio-logo { width: 12rem; }
+  .gta .gta-timer { gap: 2.5rem; }
+  .gta .gta-timer-unit { min-width: 6rem; }
+  .gta .gta-timer-value, .gta .gta-timer-done { font-size: 5rem; }
+  .gta .gta-timer-label { font-size: 0.9rem; }
+  .gta .scale-out, .gta .title-logo { transform: scale(1.25); }
+    .gta .fake-logo-wrapper, .gta .entrance-logo { top: 8.5rem; }
+  .gta .entrance-logo { width: 15rem; }
+  .gta .text-wrapper { margin-top: 15rem; }
+  .gta .first-vd { object-position: 50% center; }
+  .gta .jason h2, .gta .lucia-life h2 { font-size: 3rem; line-height: 1; padding-right: 5rem; }
+  .gta .jason p, .gta .lucia-life p { font-size: 1.5rem; line-height: 2rem; padding-right: 7rem; }
+  .gta .jason-2 { margin-top: 9rem; }
+  .gta .jason-3, .gta .lucia-3 { width: 60%; }
+  .gta .lucia-2 { margin-block: 9rem; }
+  .gta .lucia-tail { display: none; }
+  .gta .outro-logo { width: 18rem; }
+}
+@media (min-width: 64rem) {
+  .gta .jason, .gta .lucia-life { flex-direction: row; }
+  .gta .jason { padding-left: 10rem; }
+  .gta .jason-1, .gta .lucia-1 { height: 80vh; }
+  .gta .lucia-life-content { width: 50%; }
+  .gta .lucia-copy { padding-left: 8rem; }
+  .gta .lucia-2 { height: 60vh; width: 70%; transform: translateX(-1.25rem); }
+  .gta .lucia-3 { height: 90vh; }
+}
+@media (min-width: 80rem) {
+  .gta .lucia-tail { display: block; }
+}
+@media (min-width: 96rem) {
+  .gta .fake-logo-wrapper, .gta .entrance-logo { top: 11rem; }
+  .gta .overlay-logo, .gta .entrance-logo { width: 18rem; }
+  .gta .text-wrapper { margin-top: 11rem; }
+  .gta .jason { padding-left: 20rem; }
+}
+@media (min-width: 120rem) {
+  .gta .fake-logo-wrapper, .gta .entrance-logo { top: 12rem; }
+  .gta .overlay-logo, .gta .entrance-logo { width: 20rem; }
+}

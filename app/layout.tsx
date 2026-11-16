@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+import { SiteLoader } from "./components/SiteLoader";
 
 export const metadata: Metadata = {
   title: "ZzzCulture",
@@ -35,7 +36,8 @@ export default function RootLayout({
           before React hydrates. suppressHydrationWarning on these two tags
           is the standard fix — see https://react.dev/link/hydration-mismatch */}
       <body suppressHydrationWarning>
-{children}
+        <SiteLoader />
+        {children}
         <Analytics />
       </body>
     </html>

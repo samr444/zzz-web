@@ -1,0 +1,90 @@
+.container {
+  position: fixed;
+  inset: 0;
+  width: 100dvw;
+  height: 100dvh;
+  background: linear-gradient(
+    223.17deg,
+    #1c1829,
+    #1b1828 8.61%,
+    #191724 17.21%,
+    #161520 25.82%,
+    #14131c 34.42%,
+    #121218 43.03%,
+    #111117 51.63%
+  );
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.card {
+  position: relative;
+}
+
+/* The logo shape underneath: pulses and glows. */
+.svgLayer {
+  position: absolute;
+  inset: 0;
+  background: url(/loader-z.svg) no-repeat 50% / contain;
+  filter: drop-shadow(0 0 min(1vw, 25.6px) #2d324f);
+  z-index: -2;
+  animation: zPulse 2.15s cubic-bezier(0.455, 0.03, 0.515, 0.955) both infinite;
+}
+
+/* Logo-shaped window the shine sweeps through. */
+.innerLayer {
+  position: relative;
+  width: min(24vw, 160px);
+  aspect-ratio: 23.21 / 22.55;
+  overflow: hidden;
+  -webkit-mask: url(/loader-z.svg) no-repeat 50% / contain;
+  mask: url(/loader-z.svg) no-repeat 50% / contain;
+  animation: zFill 2.15s cubic-bezier(0.455, 0.03, 0.515, 0.955) both infinite;
+}
+
+.innerLayer::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -40%;
+  width: 25%;
+  height: 60%;
+  background: linear-gradient(232deg, #ffc2d0 20%, #725185 70%);
+  filter: blur(5px);
+  transform: skew(-45deg, 45deg);
+  animation: zShine 2.15s cubic-bezier(0.77, 0, 0.175, 1) both infinite;
+}
+
+@keyframes zPulse {
+  0%, 22% { opacity: 0.2; }
+  42% { opacity: 1; }
+  92%, 100% { opacity: 0.2; }
+}
+
+@keyframes zShine {
+  0% { top: -40%; left: -40%; }
+  92%, 100% { top: 75%; left: 100%; }
+}
+
+@keyframes zFill {
+  0%, 22% { background: #1d1f37; }
+  42% { background: #2d324f; }
+  92%, 100% { background: #1d1f37; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .svgLayer,
+  .innerLayer,
+  .innerLayer::after {
+    animation-duration: 4s;
+  }
+}
